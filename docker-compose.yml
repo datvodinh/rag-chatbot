@@ -1,0 +1,27 @@
+services:
+  app:
+    container_name: app
+    build: ./app
+    ports:
+      - 7860:7860
+    volumes:
+      - .:/code
+    networks:
+      - my_network
+  ollama:
+    container_name: ollama
+    image: ollama/ollama:latest
+    ports:
+      - 11434:11434
+    volumes:
+      - ollama_data:/root/.ollama
+    networks:
+      - my_network
+
+volumes:
+  ollama_data:
+    driver: local
+
+networks:
+  my_network:
+    driver: bridge
