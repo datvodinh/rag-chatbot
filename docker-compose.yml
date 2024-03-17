@@ -1,7 +1,7 @@
 services:
   app:
     container_name: app
-    build: ./app
+    build: ./chatbot
     ports:
       - 7860:7860
     volumes:
