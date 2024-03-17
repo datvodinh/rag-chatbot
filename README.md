@@ -1,6 +1,6 @@
-# Simple Chatbot UI using Ollama and Gradio
+# Simple Chatbot using Ollama and RAG
 
-![alt text](https://ollama.com/public/blog/openai.png)
+![alt text](image/demo.png)
 
 ## Setup
 
@@ -11,8 +11,6 @@ docker compose up --build -d
 ## Run
 
 Go to: `http://0.0.0.0:7860/` after `docker compose` completed.
-
-![alt text](image/demo.png)
 
 ## TODO List
 
