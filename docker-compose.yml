@@ -1,7 +1,7 @@
 services:
   app:
     container_name: app
-    build: ./chatbot
+    build: ./src
     ports:
       - 7860:7860
     volumes:
@@ -14,13 +14,9 @@ services:
     ports:
       - 11434:11434
     volumes:
-      - ollama_data:/root/.ollama
+      - ./data/ollama:/root/.ollama
     networks:
       - my_network
-
-volumes:
-  ollama_data:
-    driver: local
 
 networks:
   my_network:

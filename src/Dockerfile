@@ -8,4 +8,4 @@ RUN pip install .
 
 EXPOSE 7860
 
-CMD ["python","chatbot/chatbot/app.py"]
+CMD ["gradio","src/app.py"]
