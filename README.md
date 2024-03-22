@@ -4,7 +4,10 @@
 
 ## TODO List
 
+- Fix Empty Response
 - Finish RAG
+- Add MLX LLM
+- More mode: chat, summarize...
 
 ## Setup
 
