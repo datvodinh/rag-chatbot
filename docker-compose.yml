@@ -7,7 +7,18 @@ services:
     volumes:
       - .:/code
     networks:
-      - my_network
+      - local_network
+
+  chromadb:
+    container_name: chromadb
+    image: chromadb/chroma:latest
+    ports:
+      - 8000:8000
+    volumes:
+      - ./data/chroma:/chroma/chroma
+    networks:
+      - local_network
+    
   ollama:
     container_name: ollama
     image: ollama/ollama:latest
@@ -16,8 +27,8 @@ services:
     volumes:
       - ./data/ollama:/root/.ollama
     networks:
-      - my_network
-
+      - local_network
+      
 networks:
-  my_network:
+  local_network:
     driver: bridge

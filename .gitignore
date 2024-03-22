@@ -161,3 +161,4 @@ cython_debug/
 *.ipynb
 data
 .DS_store
+.vscode

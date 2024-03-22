@@ -1,27 +1,55 @@
 import os
+import shutil
 import json
 import gradio as gr
-from chatbot import LocalLLMModel, RAGPipeline
+from chatbot import RAGPipeline
 
+INPUT_DIR = os.path.join(os.getcwd(), "data/data")
 
 with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
-    llm_model = LocalLLMModel()
     rag_pipeline = RAGPipeline()
     gr.Markdown("# LLM Chatbot + RAG")
     with gr.Row(variant='panel', equal_height=True):
         with gr.Column(variant='panel'):
-            documents = gr.Files(label="Documents")
+            documents = gr.Files(
+                label="Documents",
+                file_types=[".txt", ".pdf", ".csv"],
+                file_count="multiple"
+            )
+            doc_progress = gr.Textbox(
+                label="Status",
+                value="Ready",
+                interactive=False,
+            )
             doc_btn = gr.Button("Process Docs")
-            model = gr.Dropdown(label="Model",
-                                choices=["gemma:2b-instruct", "llama2:chat", "mistral:instruct",
-                                         "mistral:7b-instruct-v0.2-q4_0"],
-                                value="llama2:chat", interactive=True, allow_custom_value=True
-                                )
-            embed_model = gr.Dropdown(label="Embedding Model",
-                                      choices=["intfloat/e5-large-v2"],
-                                      value="intfloat/e5-large-v2", interactive=True, allow_custom_value=True
-                                      )
-            language = gr.Dropdown(label="Language", choices=["vi", "eng"], value="vi", interactive=True)
+            model = gr.Dropdown(
+                label="Model",
+                choices=[
+                    "zephyr:7b-beta",
+                    "llama2:chat",
+                    "stablelm2:1.6b-zephyr",
+                    "gpt-3.5-turbo",
+                    "gpt-4"
+                ],
+                value="gpt-3.5-turbo",
+                interactive=True,
+                allow_custom_value=True
+            )
+            embed_model = gr.Dropdown(
+                label="Embedding Model",
+                choices=[
+                    "BAAI/bge-small-en-v1.5",
+                    "text-embedding-ada-002"
+                ],
+                value="text-embedding-ada-002",
+                interactive=True,
+            )
+            language = gr.Dropdown(
+                label="Language",
+                choices=["vi", "eng"],
+                value="eng",
+                interactive=True
+            )
             pull_btn = gr.Button("Pull Model")
 
         with gr.Column(scale=3, variant="panel"):
@@ -33,42 +61,20 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
                 clear_btn = gr.Button(value="Clear")
                 undo_btn = gr.Button(value="Undo")
 
-    with gr.Accordion("Hyperparameters", open=False):
-        with gr.Row():
-            with gr.Column(variant='panel'):
-                gr.Markdown(value="## Model")
-                temp = gr.Slider(label="Temperature", minimum=0, maximum=1, value=0.8, step=0.05)
-                top_k = gr.Slider(label="Top_k", minimum=5, maximum=100, value=20, step=5)
-                top_p = gr.Slider(label="Top_p", minimum=0.8, maximum=1, value=0.9, step=0.05)
-                freq_penalty = gr.Slider(label="Frequency Penalty", value=1.05, minimum=-2, maximum=2, step=0.05)
-            with gr.Column(variant='panel'):
-                gr.Markdown("## RAG")
-                chunk_size = gr.Radio(choices=[256, 512, 1024, 2048],)
-    # EVENT
-    get_response_kwargs = {
-        "inputs": [model, message, chatbot, temp, top_k, top_p, freq_penalty],
-        "outputs": [message, chatbot]
-    }
-
-    @send_btn.click(**get_response_kwargs)
-    @message.submit(**get_response_kwargs)
-    def get_respone(model, message, chatbot, temp, top_k, top_p, freq_penalty):
-        print(chatbot)
-        if rag_pipeline.has_docs:
-            gr.Info("Querying Database!")
-            message = rag_pipeline.query(message)
-            gr.Info("Querying Completed!")
-            print(message)
+    @send_btn.click(inputs=[message, chatbot], outputs=[message, chatbot])
+    @message.submit(inputs=[message, chatbot], outputs=[message, chatbot])
+    def get_respone(message, chatbot):
         gr.Info("Generating Answer!")
-        for mess, his in llm_model.get_response(
-            model, message, chatbot, temp, top_k, top_p, freq_penalty
-        ):
-            yield mess, his
+        user_mess = message
+        all_text = []
+        for text in rag_pipeline.query(user_mess).response_gen:
+            all_text.append(text)
+            yield "", chatbot + [[user_mess, "".join(all_text)]]
         gr.Info("Generating Completed!")
 
-    @clear_btn.click(inputs=[message, chatbot], outputs=[message, chatbot])
-    @model.change(inputs=[message, chatbot], outputs=[message, chatbot])
-    def clear_chat(message, history):
+    @clear_btn.click(outputs=[message, chatbot])
+    @model.change(outputs=[message, chatbot])
+    def clear_chat():
         return "", []
 
     @undo_btn.click(inputs=[message, chatbot], outputs=[message, chatbot])
@@ -79,10 +85,11 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
         return "", []
 
     @pull_btn.click(inputs=[model], outputs=[message, chatbot])
-    def check_and_download_model(model, progress=gr.Progress(track_tqdm=True)):
-
-        if not llm_model.check_model_exist(model):
-            response = llm_model.pull_model(model)
+    def set_model(model, progress=gr.Progress(track_tqdm=True)):
+        if model in ["gpt-3.5-turbo", "gpt-4"]:
+            rag_pipeline.set_model(model)
+        elif not rag_pipeline.check_exist(model):
+            response = rag_pipeline.pull_model(model)
             if response.status_code == 200:
                 gr.Info(f"Pulling {model}!")
                 for data in response.iter_lines(chunk_size=1):
@@ -93,32 +100,46 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
                         progress(0.)
             else:
                 gr.Warning(f"Model {model} doesn't exist!")
-
-        else:
+            rag_pipeline.set_model(model)
             gr.Info(f"Model {model} is ready!")
-
-        gr.Info("Pulling Embedding Model!")
-        rag_pipeline.pull_embed_model()
-        gr.Info("Pulling Completed!")
+        else:
+            rag_pipeline.set_model(model)
+            gr.Info(f"Model {model} is ready!")
         return "", []
 
-    @doc_btn.click(inputs=[documents])
-    def processing_document(documents):
+    @pull_btn.click(inputs=[embed_model], outputs=[message, chatbot])
+    def set_embed_model(embed_model, progress=gr.Progress(track_tqdm=True)):
+        gr.Info(f"Pulling {embed_model}!")
+        rag_pipeline.set_embed_model(embed_model)
+        gr.Info(f"Embedding model {embed_model} is ready!")
+        return "", []
+
+    @doc_btn.click(inputs=[documents, language], outputs=[doc_progress])
+    def processing_document(documents, language, progress=gr.Progress()):
+        progress(0.)
+        for file_path in documents:
+            shutil.move(src=file_path, dst=os.path.join(INPUT_DIR, file_path.split("/")[-1]))
         gr.Info("Processing Document!")
-        for d in documents:
-            with open(d, "r") as f:
-                data = f.read()
-            if not os.path.exists(os.path.join(os.getcwd(),"data/data/")):
-                os.makedirs(os.path.join(os.getcwd(),"data/data/"))
-            data_dir = os.path.join(os.getcwd(),f"data/data/{d.replace("/","")}")
-            with open(data_dir, "w") as f:
-                f.write(data)
-        rag_pipeline.add_document()
+        progress(1/4, desc="processing!")
+        documents = rag_pipeline.get_documents(input_dir=INPUT_DIR)
+        gr.Info("Indexing!")
+        progress(2/4, desc="indexing")
+        index = rag_pipeline.get_index(documents)
+        gr.Info("Getting Query Engine!")
+        progress(3/4, desc="getting query engine")
+        rag_pipeline.query_engine = rag_pipeline.get_query_engine(index, language)
         gr.Info("Processing Completed!")
+        progress(4/4)
+        return "Completed!"
 
     @documents.change(inputs=[documents])
     def change(documents):
         print(documents)
+
+    @language.change(inputs=[language])
+    def change_language(language):
+        rag_pipeline.change_prompt_language(language)
+        gr.Info(f"Change language to {language}")
 
 if __name__ == "__main__":
     demo.launch(share=False, server_name="0.0.0.0")
