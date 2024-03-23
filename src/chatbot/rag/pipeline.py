@@ -1,7 +1,6 @@
 from .embedding import LocalEmbedding
 from .model import LocalRAGModel
 from .vector_store import LocalVectorStore
-
 from llama_index.core import Settings
 
 
@@ -9,9 +8,10 @@ class RAGPipeline:
     def __init__(self, host: str = "host.docker.internal") -> None:
         self.host = host
         Settings.chunk_size = 512
+        Settings.chunk_overlap = 64
         Settings.llm = LocalRAGModel.set(host=host)
         Settings.embed_model = LocalEmbedding.set()
-        self.vector_store = LocalVectorStore(llm=Settings.llm, host=host)
+        self.vector_store = LocalVectorStore(host=host)
 
     def set_model(self, model_name: str):
         Settings.llm = LocalRAGModel.set(model_name, host=self.host)
@@ -19,6 +19,7 @@ class RAGPipeline:
 
     def set_embed_model(self, model_name: str):
         Settings.embed_model = LocalEmbedding.set(model_name)
+        self.vector_store.set_embed_model(Settings.embed_model)
 
     def pull_model(self, model_name: str):
         return LocalRAGModel.pull(self.host, model_name)
@@ -47,5 +48,7 @@ class RAGPipeline:
         index = self.get_index(documents)
         self.query_engine = self.get_query_engine(index, language)
 
-    def query(self, query: str):
-        return self.query_engine.query(query)
+    def query(self, queries: str):
+        response = self.query_engine.query(queries)
+        for text in response.response_gen:
+            yield text

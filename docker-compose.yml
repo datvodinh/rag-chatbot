@@ -18,7 +18,6 @@ services:
       - ./data/chroma:/chroma/chroma
     networks:
       - local_network
-    
   ollama:
     container_name: ollama
     image: ollama/ollama:latest

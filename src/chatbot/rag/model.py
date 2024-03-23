@@ -22,7 +22,8 @@ class LocalRAGModel:
         else:
             return Ollama(
                 model=model_name,
-                base_url=f"http://{host}:11434"
+                base_url=f"http://{host}:11434",
+                request_timeout=100000,
             )
 
     @staticmethod
@@ -30,11 +31,11 @@ class LocalRAGModel:
         payload = {
             "name": model_name
         }
-        return requests.post(f"{host}:11434/api/pull", json=payload, stream=True)
+        return requests.post(f"http://{host}:11434/api/pull", json=payload, stream=True)
 
     @staticmethod
     def check_model_exist(host: str, model_name: str) -> bool:
-        data = requests.get(f"{host}:11434/api/tags").json()
+        data = requests.get(f"http://{host}:11434/api/tags").json()
         list_model = [d["name"] for d in data["models"]]
         if model_name in list_model:
             return True
