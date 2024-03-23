@@ -4,10 +4,16 @@
 
 ## TODO List
 
+- Check for bug and optimize RAM and Storage
+- Refactor code
 - Add MLX LLM
 - More mode: chat, summarize...
 
 ## Setup
+
+### Install Ollama
+
+Download at: https://ollama.com/
 
 ### Local
 
