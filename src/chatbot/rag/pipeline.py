@@ -7,8 +7,8 @@ from llama_index.core import Settings
 class RAGPipeline:
     def __init__(self, host: str = "host.docker.internal") -> None:
         self.host = host
-        Settings.chunk_size = 512
-        Settings.chunk_overlap = 64
+        Settings.chunk_size = 256
+        Settings.chunk_overlap = 32
         Settings.llm = LocalRAGModel.set(host=host)
         Settings.embed_model = LocalEmbedding.set()
         self.vector_store = LocalVectorStore(host=host)

@@ -34,7 +34,11 @@ def main(host="host.docker.internal"):
                 )
                 embed_model = gr.Dropdown(
                     label="Embedding Model",
-                    choices=["sentence-transformers/all-MiniLM-L6-v2",],
+                    choices=[
+                        "sentence-transformers/all-MiniLM-L6-v2",
+                        "mixedbread-ai/mxbai-embed-large-v1",
+                        "intfloat/multilingual-e5-large-instruct"
+                    ],
                     value="sentence-transformers/all-MiniLM-L6-v2",
                     interactive=True,
                 )
