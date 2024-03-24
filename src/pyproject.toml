@@ -21,6 +21,8 @@ llama-index-llms-ollama = "^0.1.2"
 llama-index-readers-file = "^0.1.11"
 pymupdf = "^1.23.26"
 llama-index = "^0.10.22"
+transformers = "^4.39.1"
+torch = "^2.2.1"
 
 
 
