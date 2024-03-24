@@ -27,8 +27,8 @@ class RAGPipeline:
     def check_exist(self, model_name: str):
         return LocalRAGModel.check_model_exist(self.host, model_name)
 
-    def get_documents(self, input_dir: str):
-        return self.vector_store.get_documents(input_dir)
+    def get_documents(self, input_dir: str = None, input_files: list = None):
+        return self.vector_store.get_documents(input_dir, input_files)
 
     def get_nodes(self, documents):
         return self.vector_store.get_nodes(documents)

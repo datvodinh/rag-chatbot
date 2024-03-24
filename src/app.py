@@ -28,17 +28,14 @@ def main(host="host.docker.internal"):
                         "gpt-3.5-turbo",
                         "gpt-4"
                     ],
-                    value="gpt-3.5-turbo",
+                    value="zephyr:7b-beta",
                     interactive=True,
                     allow_custom_value=True
                 )
                 embed_model = gr.Dropdown(
                     label="Embedding Model",
-                    choices=[
-                        "BAAI/bge-small-en-v1.5",
-                        "text-embedding-ada-002"
-                    ],
-                    value="text-embedding-ada-002",
+                    choices=["sentence-transformers/all-MiniLM-L6-v2",],
+                    value="sentence-transformers/all-MiniLM-L6-v2",
                     interactive=True,
                 )
                 language = gr.Dropdown(
@@ -125,13 +122,16 @@ def main(host="host.docker.internal"):
             return "", []
 
         @doc_btn.click(inputs=[documents, language], outputs=[doc_progress])
-        def processing_document(documents, language, progress=gr.Progress()):
+        def processing_document(document, language, progress=gr.Progress()):
             progress(0.)
-            for file_path in documents:
-                shutil.move(src=file_path, dst=os.path.join(INPUT_DIR, file_path.split("/")[-1]))
             gr.Info("Processing Document!")
             progress(1/4, desc="processing!")
-            documents = rag_pipeline.get_documents(input_dir=INPUT_DIR)
+            if host == "host.docker.internal":
+                for file_path in documents:
+                    shutil.move(src=file_path, dst=os.path.join(INPUT_DIR, file_path.split("/")[-1]))
+                documents = rag_pipeline.get_documents(input_dir=INPUT_DIR)
+            else:
+                documents = rag_pipeline.get_documents(input_files=document)
             gr.Info("Indexing!")
             progress(2/4, desc="indexing")
             index = rag_pipeline.get_index(documents)
