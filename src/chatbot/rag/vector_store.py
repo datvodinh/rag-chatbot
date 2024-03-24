@@ -15,8 +15,8 @@ from llama_index.core.node_parser import SentenceSplitter
 from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.core.retrievers import QueryFusionRetriever
 from chatbot.prompt import (
-    get_prompt_format,
-    get_query_gen_format,
+    get_qa_prompt,
+    get_query_gen_prompt,
     get_rerank_prompt
 )
 from dotenv import load_dotenv
@@ -82,6 +82,7 @@ class LocalVectorStore:
         fusion_retriever = QueryFusionRetriever(
             retrievers=[vector_retriever],
             llm=Settings.llm,
+            query_gen_prompt=get_query_gen_prompt(language),
             similarity_top_k=self._similarity_top_k,
             num_queries=self._num_queries,
             mode="reciprocal_rerank",
@@ -95,6 +96,7 @@ class LocalVectorStore:
             retriever=fusion_retriever,
             response_synthesizer=get_response_synthesizer(
                 llm=Settings.llm,
+                text_qa_template=get_qa_prompt(language),
                 response_mode="compact",
                 streaming=True,
                 verbose=True
