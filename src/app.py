@@ -7,7 +7,7 @@ from chatbot import RAGPipeline
 from ollama import run_ollama_server
 
 
-def main(host="host.docker.internal"):
+def main(host="host.docker.internal", share=False):
 
     INPUT_DIR = os.path.join(os.getcwd(), "data/data")
     if not os.path.exists(INPUT_DIR):
@@ -22,11 +22,9 @@ def main(host="host.docker.internal"):
                 model = gr.Dropdown(
                     label="Model",
                     choices=[
+                        "openhermes:v2.5",
                         "zephyr:7b-beta",
                         "llama2:chat",
-                        "stablelm2:1.6b-zephyr",
-                        "gpt-3.5-turbo",
-                        "gpt-4"
                     ],
                     value="zephyr:7b-beta",
                     interactive=True,
@@ -155,7 +153,7 @@ def main(host="host.docker.internal"):
             rag_pipeline.change_prompt_language(language)
             gr.Info(f"Change language to {language}")
 
-    demo.launch(share=False, server_name="0.0.0.0")
+    demo.launch(share=share, server_name="0.0.0.0")
 
 
 if __name__ == "__main__":
@@ -164,9 +162,13 @@ if __name__ == "__main__":
         "--host", type=str, default="host.docker.internal",
         help="Set host to local or in docker container"
     )
+    parser.add_argument(
+        "--share", action='store_true',
+        help="Share gradio app"
+    )
     args = parser.parse_args()
 
     if args.host != "host.docker.internal":
         run_ollama_server()
 
-    main(host=args.host)
+    main(host=args.host, share=args.share)
