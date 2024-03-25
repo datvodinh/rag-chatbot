@@ -7,7 +7,7 @@ from llama_index.core import Settings
 class RAGPipeline:
     def __init__(self, host: str = "host.docker.internal") -> None:
         self.host = host
-        Settings.chunk_size = 256
+        Settings.chunk_size = 512
         Settings.chunk_overlap = 32
         Settings.llm = LocalRAGModel.set(host=host)
         Settings.embed_model = LocalEmbedding.set()
@@ -47,6 +47,11 @@ class RAGPipeline:
         documents = self.get_documents(input_dir)
         index = self.get_index(documents)
         self.query_engine = self.get_query_engine(index, language)
+
+    def chat(self, queries: str):
+        response = self.query_engine.query(queries)
+        for text in response.response_gen:
+            yield text
 
     def query(self, queries: str):
         response = self.query_engine.query(queries)

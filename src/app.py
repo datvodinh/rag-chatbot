@@ -22,22 +22,26 @@ def main(host="host.docker.internal", share=False):
                 model = gr.Dropdown(
                     label="Model",
                     choices=[
+                        "mistral:7b-instruct-v0.2-q4_0",
+                        "neural-chat:7b-v3.3"
                         "openhermes:v2.5",
                         "zephyr:7b-beta",
                         "llama2:chat",
+                        "gpt-3.5-turbo"
                     ],
-                    value="zephyr:7b-beta",
+                    value="mistral:7b-instruct-v0.2-q4_0",
                     interactive=True,
                     allow_custom_value=True
                 )
                 embed_model = gr.Dropdown(
                     label="Embedding Model",
                     choices=[
+                        "text-embedding-ada-002",
                         "sentence-transformers/all-MiniLM-L6-v2",
                         "mixedbread-ai/mxbai-embed-large-v1",
                         "intfloat/multilingual-e5-large-instruct"
                     ],
-                    value="sentence-transformers/all-MiniLM-L6-v2",
+                    value="text-embedding-ada-002",
                     interactive=True,
                 )
                 language = gr.Dropdown(
@@ -51,7 +55,8 @@ def main(host="host.docker.internal", share=False):
                 documents = gr.Files(
                     label="Documents",
                     file_types=[".txt", ".pdf", ".csv"],
-                    file_count="multiple"
+                    file_count="multiple",
+                    height=200
                 )
                 doc_progress = gr.Textbox(
                     label="Status",
@@ -75,7 +80,6 @@ def main(host="host.docker.internal", share=False):
             gr.Info("Generating Answer!")
             user_mess = message
             all_text = []
-            # rag_pipeline.query_engine.query(user_mess).print_response_stream()
             for text in rag_pipeline.query(user_mess):
                 all_text.append(text)
                 yield "", chatbot + [[user_mess, "".join(all_text)]]

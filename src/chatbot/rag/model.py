@@ -24,6 +24,7 @@ class LocalRAGModel:
                 model=model_name,
                 base_url=f"http://{host}:11434",
                 request_timeout=100000,
+                temperature=0.5
             )
 
     @staticmethod
