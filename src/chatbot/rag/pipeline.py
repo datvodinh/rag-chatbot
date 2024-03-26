@@ -36,8 +36,8 @@ class RAGPipeline:
     def get_index(self, documents):
         return self.vector_store.get_index(documents)
 
-    def get_query_engine(self, index, language):
-        return self.vector_store.get_query_engine(index, language)
+    def get_query_engine(self, documents, language):
+        return self.vector_store.get_query_engine(documents, language)
 
     def update_query_engine(
         self,

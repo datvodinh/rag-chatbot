@@ -23,7 +23,7 @@ def main(host="host.docker.internal", share=False):
                     label="Model",
                     choices=[
                         "mistral:7b-instruct-v0.2-q4_0",
-                        "neural-chat:7b-v3.3"
+                        "neural-chat:7b-v3.3",
                         "openhermes:v2.5",
                         "zephyr:7b-beta",
                         "llama2:chat",
@@ -63,7 +63,7 @@ def main(host="host.docker.internal", share=False):
                     value="Ready",
                     interactive=False,
                 )
-                doc_btn = gr.Button("Process Docs")
+                doc_btn = gr.Button("Get Index")
 
             with gr.Column(scale=3, variant="panel"):
                 chatbot = gr.Chatbot(layout='bubble', value=[], scale=3)
@@ -131,7 +131,7 @@ def main(host="host.docker.internal", share=False):
         def processing_document(document, language, progress=gr.Progress()):
             progress(0.)
             gr.Info("Processing Document!")
-            progress(1/4, desc="processing!")
+            progress(1/3, desc="processing!")
             if host == "host.docker.internal":
                 for file_path in documents:
                     shutil.move(src=file_path, dst=os.path.join(INPUT_DIR, file_path.split("/")[-1]))
@@ -139,13 +139,10 @@ def main(host="host.docker.internal", share=False):
             else:
                 documents = rag_pipeline.get_documents(input_files=document)
             gr.Info("Indexing!")
-            progress(2/4, desc="indexing")
-            index = rag_pipeline.get_index(documents)
-            gr.Info("Getting Query Engine!")
-            progress(3/4, desc="getting query engine")
-            rag_pipeline.query_engine = rag_pipeline.get_query_engine(index, language)
+            progress(2/3, desc="indexing")
+            rag_pipeline.query_engine = rag_pipeline.get_query_engine(documents, language)
             gr.Info("Processing Completed!")
-            progress(4/4)
+            progress(3/3)
             return "Completed!"
 
         @documents.change(inputs=[documents])
