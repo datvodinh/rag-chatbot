@@ -13,7 +13,7 @@ from llama_index.core.retrievers import (
     QueryFusionRetriever,
     VectorIndexRetriever
 )
-from chatbot.prompt import (
+from rag_chatbot.prompt import (
     get_qa_and_refine_prompt,
     get_query_gen_prompt
 )

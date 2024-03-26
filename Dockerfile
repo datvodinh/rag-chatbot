@@ -7,4 +7,4 @@ RUN pip install .
 
 EXPOSE 7860
 
-CMD ["gradio","src/app.py"]
+CMD ["python","app.py"]
