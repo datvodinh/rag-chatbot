@@ -3,8 +3,8 @@ import shutil
 import json
 import argparse
 import gradio as gr
-from chatbot import RAGPipeline
-from ollama import run_ollama_server
+from rag_chatbot import RAGPipeline
+from ollama.ollama import run_ollama_server
 
 
 def main(host="host.docker.internal", share=False):

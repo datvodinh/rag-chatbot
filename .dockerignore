@@ -1,0 +1,7 @@
+dist/
+assets/
+.vscode/
+*.ipynb
+*.md
+*.toml
+*.lock
