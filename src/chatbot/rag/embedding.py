@@ -16,8 +16,15 @@ class LocalEmbedding:
     def set(model_name: str = "text-embedding-ada-002"):
         if model_name != "text-embedding-ada-002":
             return HuggingFaceEmbedding(
-                model=AutoModel.from_pretrained(model_name, torch_dtype=torch.float16),
-                tokenizer=AutoTokenizer.from_pretrained(model_name, torch_dtype=torch.float16),
+                model=AutoModel.from_pretrained(
+                    model_name,
+                    torch_dtype=torch.float16,
+                    trust_remote_code=True
+                ),
+                tokenizer=AutoTokenizer.from_pretrained(
+                    model_name,
+                    torch_dtype=torch.float16
+                ),
                 cache_folder=os.path.join(os.getcwd(), "data/huggingface"),
                 trust_remote_code=True
             )

@@ -22,26 +22,23 @@ def main(host="host.docker.internal", share=False):
                 model = gr.Dropdown(
                     label="Model",
                     choices=[
+
+                        "mistral:7b-instruct-v0.2-q6_K",
                         "mistral:7b-instruct-v0.2-q4_0",
-                        "neural-chat:7b-v3.3",
-                        "openhermes:v2.5",
                         "zephyr:7b-beta",
-                        "llama2:chat",
                         "gpt-3.5-turbo"
                     ],
-                    value="mistral:7b-instruct-v0.2-q4_0",
+                    value="mistral:7b-instruct-v0.2-q6_K",
                     interactive=True,
                     allow_custom_value=True
                 )
                 embed_model = gr.Dropdown(
                     label="Embedding Model",
                     choices=[
-                        "text-embedding-ada-002",
-                        "sentence-transformers/all-MiniLM-L6-v2",
-                        "mixedbread-ai/mxbai-embed-large-v1",
+                        "BAAI/bge-base-en-v1.5",
                         "intfloat/multilingual-e5-large-instruct"
                     ],
-                    value="text-embedding-ada-002",
+                    value="BAAI/bge-base-en-v1.5",
                     interactive=True,
                 )
                 language = gr.Dropdown(
@@ -76,7 +73,7 @@ def main(host="host.docker.internal", share=False):
 
         @send_btn.click(inputs=[message, chatbot], outputs=[message, chatbot])
         @message.submit(inputs=[message, chatbot], outputs=[message, chatbot])
-        def get_respone(message, chatbot):
+        def get_respone(message, chatbot, progress=gr.Progress(track_tqdm=True)):
             gr.Info("Generating Answer!")
             user_mess = message
             all_text = []
@@ -128,10 +125,8 @@ def main(host="host.docker.internal", share=False):
             return "", []
 
         @doc_btn.click(inputs=[documents, language], outputs=[doc_progress])
-        def processing_document(document, language, progress=gr.Progress()):
-            progress(0.)
+        def processing_document(document, language, progress=gr.Progress(track_tqdm=True)):
             gr.Info("Processing Document!")
-            progress(1/3, desc="processing!")
             if host == "host.docker.internal":
                 for file_path in documents:
                     shutil.move(src=file_path, dst=os.path.join(INPUT_DIR, file_path.split("/")[-1]))
@@ -139,10 +134,8 @@ def main(host="host.docker.internal", share=False):
             else:
                 documents = rag_pipeline.get_documents(input_files=document)
             gr.Info("Indexing!")
-            progress(2/3, desc="indexing")
             rag_pipeline.query_engine = rag_pipeline.get_query_engine(documents, language)
             gr.Info("Processing Completed!")
-            progress(3/3)
             return "Completed!"
 
         @documents.change(inputs=[documents])
@@ -151,7 +144,6 @@ def main(host="host.docker.internal", share=False):
 
         @language.change(inputs=[language])
         def change_language(language):
-            rag_pipeline.change_prompt_language(language)
             gr.Info(f"Change language to {language}")
 
     demo.launch(share=share, server_name="0.0.0.0")
