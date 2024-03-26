@@ -128,7 +128,7 @@ def main(host="host.docker.internal", share=False):
         def processing_document(document, language, progress=gr.Progress(track_tqdm=True)):
             gr.Info("Processing Document!")
             if host == "host.docker.internal":
-                for file_path in documents:
+                for file_path in document:
                     shutil.move(src=file_path, dst=os.path.join(INPUT_DIR, file_path.split("/")[-1]))
                 documents = rag_pipeline.get_documents(input_dir=INPUT_DIR)
             else:
