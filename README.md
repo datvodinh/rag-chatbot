@@ -8,6 +8,14 @@
 
 Download at: https://ollama.com/
 
+### Use OpenAI model
+
+Create file `.env` and input:
+
+```bash
+OPENAI_API_KEY = "[YOUR API KEY]"
+```
+
 ### Local
 
 ```bash
