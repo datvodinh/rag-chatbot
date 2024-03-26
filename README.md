@@ -11,14 +11,14 @@ Download at: https://ollama.com/
 ### Local
 
 ```bash
-pip install ./src
+pip install .
 
 ```
 
 ### With Docker
 
 ```bash
-docker compose up --build -d
+docker compose up
 ```
 
 ## Run
@@ -26,7 +26,7 @@ docker compose up --build -d
 ### Step 1: (Local Only)
 
 ```bash
-python src/app.py --host localhost
+python app.py --host localhost
 ```
 
 ### Step 2:
