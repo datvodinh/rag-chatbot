@@ -162,3 +162,5 @@ cython_debug/
 data
 .DS_store
 .vscode
+mlx_model
+test.py

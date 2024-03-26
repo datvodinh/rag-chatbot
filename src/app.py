@@ -25,7 +25,7 @@ def main(host="host.docker.internal", share=False):
 
                         "mistral:7b-instruct-v0.2-q6_K",
                         "mistral:7b-instruct-v0.2-q4_0",
-                        "zephyr:7b-beta",
+                        "zephyr:7b-beta-q6_K",
                         "gpt-3.5-turbo"
                     ],
                     value="mistral:7b-instruct-v0.2-q6_K",

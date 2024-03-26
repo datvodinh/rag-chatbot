@@ -2,13 +2,6 @@
 
 ![alt text](assets/demo.png)
 
-## TODO List
-
-- Check for bug and optimize RAM and Storage
-- Refactor code
-- Add MLX LLM
-- More mode: chat, summarize...
-
 ## Setup
 
 ### Install Ollama
@@ -30,10 +23,12 @@ docker compose up --build -d
 
 ## Run
 
-### Local Only
+### Step 1: (Local Only)
 
 ```bash
 python src/app.py --host localhost
 ```
 
-Go to: `http://0.0.0.0:7860/` after `docker compose` completed.
+### Step 2:
+
+Go to: `http://0.0.0.0:7860/`.
