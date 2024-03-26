@@ -1,7 +1,7 @@
 services:
   app:
     container_name: app
-    build: ./docker
+    build: .
     ports:
       - 7860:7860
     volumes:
