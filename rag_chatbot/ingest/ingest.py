@@ -1,8 +1,6 @@
-import os
 from llama_index.core import SimpleDirectoryReader, Document
 from llama_index.core.node_parser import SentenceSplitter
 from dotenv import load_dotenv
-
 
 load_dotenv()
 

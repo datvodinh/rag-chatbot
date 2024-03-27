@@ -1,4 +1,4 @@
-# Simple Chatbot using Ollama and RAG
+# Chat with multiple PDFs, using Ollama and RAG
 
 ![alt text](assets/demo.png)
 
