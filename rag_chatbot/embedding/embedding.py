@@ -13,7 +13,7 @@ class LocalEmbedding:
         pass
 
     @staticmethod
-    def set(model_name: str = "text-embedding-ada-002"):
+    def set(model_name: str = "BAAI/bge-base-en-v1.5"):
         if model_name != "text-embedding-ada-002":
             return HuggingFaceEmbedding(
                 model=AutoModel.from_pretrained(

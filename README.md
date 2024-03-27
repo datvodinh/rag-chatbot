@@ -2,6 +2,11 @@
 
 ![alt text](assets/demo.png)
 
+## TODO
+
+- Chat Engine
+- Summary Engine
+
 ## Setup
 
 ### Install Ollama

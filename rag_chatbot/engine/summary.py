@@ -1,0 +1,3 @@
+class LocalSummaryEngine:
+    # TODO
+    pass
