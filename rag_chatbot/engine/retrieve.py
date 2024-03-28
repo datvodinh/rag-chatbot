@@ -21,26 +21,34 @@ load_dotenv()
 
 class LocalRetrieveEngine(LocalBaseEngine):
     def __init__(self, host: str = "host.docker.internal"):
+        super().__init__()
         self._num_queries = 6
         self._similarity_top_k = 5
         self._similarity_cutoff = 0.7
         self._host = host
 
-    def _set_engine(
+    def _from_documents(
         self,
         documents: Document,
         language: str,
     ):
         # GET INDEX
-        vector_index = VectorStoreIndex.from_documents(
+        index = VectorStoreIndex.from_documents(
             documents=documents,
             # storage_context=storage_context,
             show_progress=True
         )
 
+        return self._from_index(index, language)
+
+    def _from_index(
+        self,
+        index: VectorStoreIndex,
+        language: str,
+    ):
         # VECTOR INDEX RETRIEVER
         vector_retriever = VectorIndexRetriever(
-            index=vector_index,
+            index=index,
             similarity_top_k=self._similarity_top_k,
             embed_model=Settings.embed_model,
             verbose=True
@@ -59,7 +67,7 @@ class LocalRetrieveEngine(LocalBaseEngine):
 
         qa_template, refine_template = get_qa_and_refine_prompt(language)
 
-        fusion_query_engine = RetrieverQueryEngine.from_args(
+        query_engine = RetrieverQueryEngine.from_args(
             retriever=fusion_retriever,
             response_synthesizer=get_response_synthesizer(
                 llm=Settings.llm,
@@ -71,7 +79,7 @@ class LocalRetrieveEngine(LocalBaseEngine):
             )
         )
 
-        return fusion_query_engine
+        return query_engine
 
     def _query(self, queries: str):
         return self.fusion_query_engine.query(queries)

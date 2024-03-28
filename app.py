@@ -48,11 +48,11 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
                 choices=[
 
                     "mistral:7b-instruct-v0.2-q6_K",
-                    "mistral:7b-instruct-v0.2-q4_0",
+                    "starling-lm:7b-alpha-q6_K",
                     "zephyr:7b-beta-q6_K",
                     "gpt-3.5-turbo"
                 ],
-                value="mistral:7b-instruct-v0.2-q6_K",
+                value="starling-lm:7b-alpha-q6_K",
                 interactive=True,
                 allow_custom_value=True
             )
@@ -72,7 +72,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
             )
             doc_btn = gr.Button("Get Index")
 
-        with gr.Column(scale=24, variant="panel"):
+        with gr.Column(scale=30, variant="panel"):
             chatbot = gr.Chatbot(layout='bubble', value=[], scale=2)
             with gr.Row(variant='panel'):
                 message = gr.Textbox(label="Enter Prompt:", scale=5, lines=1)
@@ -116,7 +116,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
                 for data in response.iter_lines(chunk_size=1):
                     data = json.loads(data)
                     if 'completed' in data.keys() and 'total' in data.keys():
-                        progress(data['completed'] / data['total'])
+                        progress(data['completed'] / data['total'], desc="Downloading")
                     else:
                         progress(0.)
             else:
@@ -127,13 +127,6 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
             rag_pipeline.set_model(model)
             gr.Info(f"Model {model} is ready!")
         return "", []
-
-    # @pull_btn.click(inputs=[embed_model], outputs=[message, chatbot])
-    # def set_embed_model(embed_model, progress=gr.Progress(track_tqdm=True)):
-    #     gr.Info(f"Pulling {embed_model}!")
-    #     rag_pipeline.set_embed_model(embed_model)
-    #     gr.Info(f"Embedding model {embed_model} is ready!")
-    #     return "", []
 
     @doc_btn.click(inputs=[documents, language, chat_mode], outputs=[doc_progress])
     def processing_document(
