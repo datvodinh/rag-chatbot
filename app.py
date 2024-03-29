@@ -26,7 +26,7 @@ if args.host != "host.docker.internal":
     run_ollama_server()
 
 with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
-    gr.Markdown("# LLM Chatbot + RAG")
+    gr.Markdown("# Chat with Multiple PDFs")
     with gr.Row(variant='panel', equal_height=True):
         with gr.Column(variant='panel', scale=10):
             # gr.Markdown("### Step 1: Set Model")
@@ -46,13 +46,12 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
             model = gr.Dropdown(
                 label="Step 1: Set Model",
                 choices=[
-
                     "mistral:7b-instruct-v0.2-q6_K",
                     "starling-lm:7b-alpha-q6_K",
                     "zephyr:7b-beta-q6_K",
                     "gpt-3.5-turbo"
                 ],
-                value="starling-lm:7b-alpha-q6_K",
+                value="mistral:7b-instruct-v0.2-q6_K",
                 interactive=True,
                 allow_custom_value=True
             )
@@ -108,8 +107,8 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
 
     @reset_btn.click(outputs=[message, chatbot, documents])
     def reset_chat():
-        rag_pipeline.vector_index = None
-        rag_pipeline.summary_index = None
+        rag_pipeline.reset_index()
+        rag_pipeline.reset_query_engine()
         return "", [], []
 
     @pull_btn.click(inputs=[model], outputs=[message, chatbot])
@@ -171,5 +170,4 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
             gr.Info(f"Change mode to {chat_mode}!")
 
 
-demo.launch(share=args.share, server_name="0.0.0.0") 
-
+demo.launch(share=args.share, server_name="0.0.0.0")
