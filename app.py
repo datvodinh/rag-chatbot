@@ -78,16 +78,17 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
                 message = gr.Textbox(label="Enter Prompt:", scale=5, lines=1)
                 send_btn = gr.Button(value="Send", scale=1, size='sm')
             with gr.Row(variant='panel'):
+                reset_btn = gr.Button(value="Reset")
                 clear_btn = gr.Button(value="Clear")
                 undo_btn = gr.Button(value="Undo")
 
-    @send_btn.click(inputs=[message, chatbot], outputs=[message, chatbot])
-    @message.submit(inputs=[message, chatbot], outputs=[message, chatbot])
-    def get_respone(message, chatbot, progress=gr.Progress(track_tqdm=True)):
+    @send_btn.click(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
+    @message.submit(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
+    def get_respone(message, chatbot, mode, progress=gr.Progress(track_tqdm=True)):
         gr.Info("Generating Answer!")
         user_mess = message
         all_text = []
-        for text in rag_pipeline.query(user_mess):
+        for text in rag_pipeline.query(user_mess, mode):
             all_text.append(text)
             yield "", chatbot + [[user_mess, "".join(all_text)]]
         gr.Info("Generating Completed!")
@@ -104,6 +105,12 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
             history.pop(-1)
             return "", history
         return "", []
+
+    @reset_btn.click(outputs=[message, chatbot, documents])
+    def reset_chat():
+        rag_pipeline.vector_index = None
+        rag_pipeline.summary_index = None
+        return "", [], []
 
     @pull_btn.click(inputs=[model], outputs=[message, chatbot])
     def set_model(model, progress=gr.Progress(track_tqdm=True)):
@@ -153,5 +160,16 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
     def change_language(language):
         gr.Info(f"Change language to {language}")
 
+    @chat_mode.change(inputs=[documents, chat_mode])
+    def change_mode(chat_mode):
+        if (
+            (rag_pipeline.summary_index is not None) and (chat_mode == "summary")
+        ) or (
+            (rag_pipeline.vector_index is not None) and (chat_mode != "summary")
+        ):
+            rag_pipeline.set_engine(mode=change_mode)
+            gr.Info(f"Change mode to {chat_mode}!")
 
-demo.launch(share=args.share, server_name="0.0.0.0")
+
+demo.launch(share=args.share, server_name="0.0.0.0") 
+

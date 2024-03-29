@@ -15,6 +15,7 @@ from rag_chatbot.prompt import (
 from llama_index.core.query_engine import RetrieverQueryEngine
 from dotenv import load_dotenv
 from .base import LocalBaseEngine
+from llama_index.core.node_parser import SentenceSplitter
 
 load_dotenv()
 
@@ -35,7 +36,12 @@ class LocalRetrieveEngine(LocalBaseEngine):
         # GET INDEX
         index = VectorStoreIndex.from_documents(
             documents=documents,
-            # storage_context=storage_context,
+            transformations=[
+                SentenceSplitter(
+                    chunk_size=Settings.chunk_size,
+                    chunk_overlap=Settings.chunk_overlap
+                )
+            ],
             show_progress=True
         )
 

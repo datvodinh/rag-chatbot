@@ -4,8 +4,8 @@
 
 ## TODO
 
-- Chat Engine
-- Summary Engine
+- Fix Bug
+- Add default mode (no documents)
 
 ## Setup
 
