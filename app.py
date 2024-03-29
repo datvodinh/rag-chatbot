@@ -60,6 +60,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
             # gr.Markdown("### Step 2: Add Documents")
             documents = gr.Files(
                 label="Step 2: Add Documents",
+                value=[],
                 file_types=[".txt", ".pdf", ".csv"],
                 file_count="multiple",
                 height=150
@@ -75,22 +76,19 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
             chatbot = gr.Chatbot(layout='bubble', value=[], scale=2)
             with gr.Row(variant='panel'):
                 message = gr.Textbox(label="Enter Prompt:", scale=5, lines=1)
-                send_btn = gr.Button(value="Send", scale=1, size='sm')
             with gr.Row(variant='panel'):
                 reset_btn = gr.Button(value="Reset")
                 clear_btn = gr.Button(value="Clear")
                 undo_btn = gr.Button(value="Undo")
 
-    @send_btn.click(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
+    # @send_btn.click(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
     @message.submit(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
     def get_respone(message, chatbot, mode, progress=gr.Progress(track_tqdm=True)):
-        gr.Info("Generating Answer!")
         user_mess = message
         all_text = []
         for text in rag_pipeline.query(user_mess, mode):
             all_text.append(text)
             yield "", chatbot + [[user_mess, "".join(all_text)]]
-        gr.Info("Generating Completed!")
 
     @clear_btn.click(outputs=[message, chatbot])
     @model.change(outputs=[message, chatbot])
@@ -128,46 +126,34 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
             else:
                 gr.Warning(f"Model {model} doesn't exist!")
             rag_pipeline.set_model(model)
-            gr.Info(f"Model {model} is ready!")
         else:
             rag_pipeline.set_model(model)
-            gr.Info(f"Model {model} is ready!")
+        gr.Info(f"Model {model} is ready!")
         return "", []
 
+    @chat_mode.change(inputs=[documents, language, chat_mode], outputs=[doc_progress])
     @doc_btn.click(inputs=[documents, language, chat_mode], outputs=[doc_progress])
     def processing_document(
         document, language, mode,
         progress=gr.Progress(track_tqdm=True)
     ):
-        gr.Info("Processing Document!")
-        if args.host == "host.docker.internal":
-            for file_path in document:
-                shutil.move(src=file_path, dst=os.path.join(INPUT_DIR, file_path.split("/")[-1]))
-            documents = rag_pipeline.get_documents(input_dir=INPUT_DIR)
+        if len(document) > 0:
+            gr.Info("Processing Document!")
+            if args.host == "host.docker.internal":
+                for file_path in document:
+                    shutil.move(src=file_path, dst=os.path.join(INPUT_DIR, file_path.split("/")[-1]))
+                documents = rag_pipeline.get_documents(input_dir=INPUT_DIR)
+            else:
+                documents = rag_pipeline.get_documents(input_files=document)
+            gr.Info("Indexing!")
+            rag_pipeline.set_engine(documents, language, mode)
+            gr.Info("Processing Completed!")
+            return "Completed!"
         else:
-            documents = rag_pipeline.get_documents(input_files=document)
-        gr.Info("Indexing!")
-        rag_pipeline.set_engine(documents, language, mode)
-        gr.Info("Processing Completed!")
-        return "Completed!"
-
-    @documents.change(inputs=[documents])
-    def change(documents):
-        print(documents)
+            return "Empty Documents"
 
     @language.change(inputs=[language])
     def change_language(language):
         gr.Info(f"Change language to {language}")
-
-    @chat_mode.change(inputs=[documents, chat_mode])
-    def change_mode(chat_mode):
-        if (
-            (rag_pipeline.summary_index is not None) and (chat_mode == "summary")
-        ) or (
-            (rag_pipeline.vector_index is not None) and (chat_mode != "summary")
-        ):
-            rag_pipeline.set_engine(mode=change_mode)
-            gr.Info(f"Change mode to {chat_mode}!")
-
 
 demo.launch(share=args.share, server_name="0.0.0.0")
