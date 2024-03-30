@@ -3,7 +3,6 @@ import torch
 import requests
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.embeddings.openai import OpenAIEmbedding
-from llama_index.embeddings.ollama import OllamaEmbedding
 from transformers import AutoModel, AutoTokenizer
 from dotenv import load_dotenv
 
@@ -20,13 +19,6 @@ class LocalEmbedding:
         model_name: str = "BAAI/bge-base-en-v1.5",
         host: str = "host.docker.internal"
     ):
-        if model_name == "nomic-embed-text:v1.5":
-            return OllamaEmbedding(
-                model_name="nomic-embed-text:v1.5",
-                base_url=f"http://{host}:11434",
-                embed_batch_size=256,
-                ollama_additional_kwargs={"mirostat": 0},
-            )
         if model_name != "text-embedding-ada-002":
             return HuggingFaceEmbedding(
                 model=AutoModel.from_pretrained(
