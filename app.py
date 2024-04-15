@@ -25,61 +25,60 @@ rag_pipeline = RAGPipeline(host=args.host)
 if args.host != "host.docker.internal":
     run_ollama_server()
 
-with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
+with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
     gr.Markdown("# Chat with Multiple PDFs")
-    with gr.Row(variant='panel', equal_height=True):
-        with gr.Column(variant='panel', scale=10):
-            # gr.Markdown("### Step 1: Set Model")
-            with gr.Column():
-                chat_mode = gr.Radio(
-                    label="Mode",
-                    choices=["chat", "retrieve", "summary"],
-                    value="retrieve",
-                    interactive=True
+    with gr.Tab("Chatbot Interface"):
+        with gr.Row(variant='panel', equal_height=True):
+            with gr.Column(variant='panel', scale=10):
+                documents = gr.Files(
+                    label="Add Documents",
+                    value=[],
+                    file_types=[".txt", ".pdf", ".csv"],
+                    file_count="multiple",
+                    height=150
                 )
-                language = gr.Radio(
-                    label="Language",
-                    choices=["vi", "eng"],
-                    value="eng",
-                    interactive=True
+                doc_progress = gr.Textbox(
+                    label="Status",
+                    value="Ready",
+                    interactive=False,
                 )
-            model = gr.Dropdown(
-                label="Step 1: Set Model",
-                choices=[
-                    "mistral:7b-instruct-v0.2-q6_K",
-                    "starling-lm:7b-alpha-q6_K",
-                    "zephyr:7b-beta-q6_K",
-                    "gpt-3.5-turbo"
-                ],
-                value="mistral:7b-instruct-v0.2-q6_K",
-                interactive=True,
-                allow_custom_value=True
-            )
-            pull_btn = gr.Button("Set Model")
+                with gr.Column():
+                    chat_mode = gr.Radio(
+                        label="Mode",
+                        choices=["chat", "retrieve", "summary"],
+                        value="retrieve",
+                        interactive=True
+                    )
+                    language = gr.Radio(
+                        label="Language",
+                        choices=["vi", "eng"],
+                        value="eng",
+                        interactive=True
+                    )
+                model = gr.Dropdown(
+                    label="Set Model",
+                    choices=[
+                        "mistral:7b-instruct-v0.2-q6_K",
+                        "starling-lm:7b-beta-q6_K",
+                        "gpt-3.5-turbo"
+                    ],
+                    value="starling-lm:7b-beta-q6_K",
+                    interactive=True,
+                    allow_custom_value=True
+                )
+                pull_btn = gr.Button("Set Model")
 
-            # gr.Markdown("### Step 2: Add Documents")
-            documents = gr.Files(
-                label="Step 2: Add Documents",
-                value=[],
-                file_types=[".txt", ".pdf", ".csv"],
-                file_count="multiple",
-                height=150
-            )
-            doc_progress = gr.Textbox(
-                label="Status",
-                value="Ready",
-                interactive=False,
-            )
-            doc_btn = gr.Button("Get Index")
+            with gr.Column(scale=30, variant="panel"):
+                chatbot = gr.Chatbot(layout='bubble', value=[], scale=2)
+                with gr.Row(variant='panel'):
+                    message = gr.Textbox(label="Enter Prompt:", scale=5, lines=1)
+                with gr.Row(variant='panel'):
+                    reset_btn = gr.Button(value="Reset")
+                    clear_btn = gr.Button(value="Clear")
+                    undo_btn = gr.Button(value="Undo")
 
-        with gr.Column(scale=30, variant="panel"):
-            chatbot = gr.Chatbot(layout='bubble', value=[], scale=2)
-            with gr.Row(variant='panel'):
-                message = gr.Textbox(label="Enter Prompt:", scale=5, lines=1)
-            with gr.Row(variant='panel'):
-                reset_btn = gr.Button(value="Reset")
-                clear_btn = gr.Button(value="Clear")
-                undo_btn = gr.Button(value="Undo")
+    with gr.Tab("Retrieval Process"):
+        gr.Markdown("ok")
 
     # @send_btn.click(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
     @message.submit(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
@@ -107,7 +106,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
     def reset_chat():
         rag_pipeline.reset_index()
         rag_pipeline.reset_query_engine()
-        return "", [], []
+        return "", [], None
 
     @pull_btn.click(inputs=[model], outputs=[message, chatbot])
     def set_model(model, progress=gr.Progress(track_tqdm=True)):
@@ -131,13 +130,19 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="green")) as demo:
         gr.Info(f"Model {model} is ready!")
         return "", []
 
+    @documents.change(inputs=[model, documents], outputs=[message, chatbot])
+    def set_model_with_docs(model, document):
+        if document is not None:
+            return set_model(model)
+        return "", []
+
     @chat_mode.change(inputs=[documents, language, chat_mode], outputs=[doc_progress])
-    @doc_btn.click(inputs=[documents, language, chat_mode], outputs=[doc_progress])
+    @documents.change(inputs=[documents, language, chat_mode], outputs=[doc_progress])
     def processing_document(
         document, language, mode,
         progress=gr.Progress(track_tqdm=True)
     ):
-        if len(document) > 0:
+        if document is not None:
             gr.Info("Processing Document!")
             if args.host == "host.docker.internal":
                 for file_path in document:
