@@ -2,6 +2,7 @@ import os
 import shutil
 import json
 import argparse
+import socket
 import gradio as gr
 from rag_chatbot import RAGPipeline, run_ollama_server
 
@@ -23,7 +24,16 @@ if not os.path.exists(INPUT_DIR):
 rag_pipeline = RAGPipeline(host=args.host)
 
 if args.host != "host.docker.internal":
-    run_ollama_server()
+    def is_port_open(port):
+        with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+            try:
+                s.connect(('localhost', port))
+                return True
+            except ConnectionRefusedError:
+                return False
+    port_number = 11434
+    if not is_port_open(port_number):
+        run_ollama_server()
 
 with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
     gr.Markdown("# Chat with Multiple PDFs")

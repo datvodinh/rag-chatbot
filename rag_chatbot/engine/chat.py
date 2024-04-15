@@ -24,7 +24,11 @@ class LocalChatEngine(LocalBaseEngine):
 
         return self._from_index(index, language)
 
-    def _from_index(self, index: VectorStoreIndex, language: str):
+    def _from_index(
+        self,
+        index: VectorStoreIndex,
+        language: str
+    ) -> CondensePlusContextChatEngine:
         # VECTOR INDEX RETRIEVER
         vector_retriever = VectorIndexRetriever(
             index=index,
@@ -38,7 +42,7 @@ class LocalChatEngine(LocalBaseEngine):
             retrievers=[vector_retriever],
             llm=Settings.llm,
             query_gen_prompt=get_query_gen_prompt(language),
-            similarity_top_k=5,
+            similarity_top_k=2,
             num_queries=self._num_queries,
             mode="reciprocal_rerank",
             verbose=True
@@ -46,7 +50,7 @@ class LocalChatEngine(LocalBaseEngine):
         chat_engine = CondensePlusContextChatEngine.from_defaults(
             retriever=fusion_retriever,
             llm=Settings.llm,
-            memory=ChatMemoryBuffer(token_limit=6000),
+            memory=ChatMemoryBuffer(token_limit=3000),
             system_prompt=get_system_prompt(language)
         )
 

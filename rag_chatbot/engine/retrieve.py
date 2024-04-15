@@ -51,7 +51,7 @@ class LocalRetrieveEngine(LocalBaseEngine):
         self,
         index: VectorStoreIndex,
         language: str,
-    ):
+    ) -> RetrieverQueryEngine:
         # VECTOR INDEX RETRIEVER
         vector_retriever = VectorIndexRetriever(
             index=index,
@@ -65,7 +65,7 @@ class LocalRetrieveEngine(LocalBaseEngine):
             retrievers=[vector_retriever],
             llm=Settings.llm,
             query_gen_prompt=get_query_gen_prompt(language),
-            similarity_top_k=5,
+            similarity_top_k=2,
             num_queries=self._num_queries,
             mode="reciprocal_rerank",
             verbose=True
@@ -86,6 +86,3 @@ class LocalRetrieveEngine(LocalBaseEngine):
         )
 
         return query_engine
-
-    def _query(self, queries: str):
-        return self.fusion_query_engine.query(queries)

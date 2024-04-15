@@ -34,7 +34,11 @@ class LocalSummaryEngine(LocalBaseEngine):
         )
         return self._from_index(doc_summary_index, language)
 
-    def _from_index(self, index: VectorStoreIndex, language: str):
+    def _from_index(
+        self,
+        index: VectorStoreIndex,
+        language: str
+    ) -> RetrieverQueryEngine:
         summary_retriever = DocumentSummaryIndexLLMRetriever(
             index=index,
             choice_batch_size=10,
