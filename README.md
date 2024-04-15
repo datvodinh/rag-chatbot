@@ -4,8 +4,8 @@
 
 ## TODO
 
-- Fix Bug
-- Add default mode (no documents)
+- Support Embedding for Vietnamese
+- Knowledge Graph
 
 ## Setup
 
