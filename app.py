@@ -43,7 +43,7 @@ if args.host != "host.docker.internal":
         run_ollama_server()
 
 with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
-    gr.Markdown("# Chat with Multiple PDFs🔥")
+    gr.Markdown("# Chat with Multiple PDFs🤖")
     with gr.Tab("Chatbot Interface"):
         with gr.Row(variant='panel', equal_height=True):
             with gr.Column(variant='panel', scale=10):
@@ -95,7 +95,8 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
                     undo_btn = gr.Button(value="Undo")
 
     with gr.Tab("Retrieval Process"):
-        log = gr.Code(label="", language="shell", interactive=False, container=True, lines=30)
+        with gr.Row(variant="compact"):
+            log = gr.Code(label="", language="shell", interactive=False, container=True, lines=30)
         demo.load(logger.read_logs, None, log, every=1)
 
     # @send_btn.click(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])

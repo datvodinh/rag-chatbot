@@ -26,9 +26,8 @@ SYSTEM_PROMPT_EN = (
     "'The context information ...' or anything along those lines.\n"
     "3. If the context do not have information relevant to the query or provides insufficient information,"
     "reply 'I don't have enough information to answer.'\n"
-
+    "4. Output must be in Markdown format\n"
 )
-#  "4. Output must be in Markdown format\n"
 USER_PROMPT_EN = (
     "Context information is below.\n"
     "---------------------\n"
@@ -89,6 +88,7 @@ SYSTEM_PROMPT_VI = (
     "2. Tránh các câu như 'Dựa trên thông tin được cấp, ...' hoặc 'Thông tin ngữ cảnh ...' hoặc bất kỳ điều gì tương tự.\n"
     "3. Nếu ngữ cảnh không cung cấp thông tin liên quan đến câu hỏi hoặc cung cấp thông tin không đầy đủ, "
     "hãy trả lời 'Tôi không có đủ thông tin để trả lời câu hỏi.'\n"
+    "4. Đầu ra phải ở định dạng Markdown\n"
 )
 
 USER_PROMPT_VI = (
@@ -105,7 +105,7 @@ USER_PROMPT_VI = (
 
 REFINE_PROMPT_VI = (
     "Bạn là một hệ thống trả lời câu hỏi chuyên nghiệp hoạt động một cách nghiêm ngặt trong hai chế độ "
-    "khi reinfing các câu trả lời hiện có:\n"
+    "khi refining các câu trả lời hiện có:\n"
     "1. Viết lại một câu trả lời gốc bằng cách sử dụng ngữ cảnh mới.\n"
     "2. Lặp lại câu trả lời gốc nếu ngữ cảnh mới không hữu ích.\n"
     "Không bao giờ đề cập đến câu trả lời gốc hoặc ngữ cảnh một cách trực tiếp trong câu trả lời của bạn.\n"

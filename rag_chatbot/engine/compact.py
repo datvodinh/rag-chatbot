@@ -2,7 +2,11 @@ from llama_index.core.node_parser import SentenceSplitter
 from .base import LocalBaseEngine
 from dotenv import load_dotenv
 from llama_index.core.query_engine import RetrieverQueryEngine
-from llama_index.core.retrievers import QueryFusionRetriever, VectorIndexRetriever, RouterRetriever
+from llama_index.core.retrievers import (
+    QueryFusionRetriever,
+    VectorIndexRetriever,
+    RouterRetriever
+)
 from llama_index.core.tools import RetrieverTool
 from llama_index.core.selectors import LLMSingleSelector
 from llama_index.core import (
@@ -88,18 +92,18 @@ class LocalCompactEngine(LocalBaseEngine):
         fusion_tool = RetrieverTool.from_defaults(
             retriever=fusion_retriever,
             description=(
-                "Useful when the query is ambiguous "
-                "and you want to generate more query in order to retrieve context."
+                "Optimal for resolving ambiguous queries by "
+                "generating additional queries to refine search results."
             )
         )
 
         summary_tool = RetrieverTool.from_defaults(
             retriever=summary_index.as_retriever(
-                retriever_mode="llm",
                 llm=Settings.llm
             ),
             description=(
-                "Useful for summarization query "
+                "Efficient tool for summarizing queries, "
+                "allowing for concise extraction of key information."
             )
         )
 
@@ -117,8 +121,9 @@ class LocalCompactEngine(LocalBaseEngine):
             verbose=True
 
         )
+
         qa_template, refine_template = get_qa_and_refine_prompt(language)
-        # FUSION QUERY ENGINE
+
         query_engine = RetrieverQueryEngine.from_args(
             retriever=router_retriever,
             response_synthesizer=get_response_synthesizer(
