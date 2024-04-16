@@ -12,7 +12,7 @@ class LocalRAGModel:
 
     @staticmethod
     def set(
-        model_name: str = "gpt-3.5-turbo",
+        model_name: str = "starling-lm:7b-beta-q6_K",
         host: str = "host.docker.internal"
     ):
         if model_name in ["gpt-3.5-turbo", "gpt-4"]:
@@ -24,7 +24,7 @@ class LocalRAGModel:
                 model=model_name,
                 base_url=f"http://{host}:11434",
                 request_timeout=100000,
-                temperature=0.5
+                temperature=0
             )
 
     @staticmethod

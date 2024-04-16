@@ -26,9 +26,9 @@ SYSTEM_PROMPT_EN = (
     "'The context information ...' or anything along those lines.\n"
     "3. If the context do not have information relevant to the query or provides insufficient information,"
     "reply 'I don't have enough information to answer.'\n"
-    "4. Output must be in Markdown format\n"
-)
 
+)
+#  "4. Output must be in Markdown format\n"
 USER_PROMPT_EN = (
     "Context information is below.\n"
     "---------------------\n"

@@ -2,9 +2,16 @@ import os
 import shutil
 import json
 import argparse
+import sys
 import socket
 import gradio as gr
-from rag_chatbot import RAGPipeline, run_ollama_server
+from rag_chatbot import RAGPipeline, run_ollama_server, Logger
+import llama_index.core
+
+LOG_FILE = "logging.log"
+llama_index.core.set_global_handler("simple")
+logger = Logger(LOG_FILE)
+logger.reset_logs()
 
 parser = argparse.ArgumentParser()
 parser.add_argument(
@@ -36,7 +43,7 @@ if args.host != "host.docker.internal":
         run_ollama_server()
 
 with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
-    gr.Markdown("# Chat with Multiple PDFs")
+    gr.Markdown("# Chat with Multiple PDFs🔥")
     with gr.Tab("Chatbot Interface"):
         with gr.Row(variant='panel', equal_height=True):
             with gr.Column(variant='panel', scale=10):
@@ -55,8 +62,8 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
                 with gr.Column():
                     chat_mode = gr.Radio(
                         label="Mode",
-                        choices=["chat", "retrieve", "summary"],
-                        value="retrieve",
+                        choices=["chat", "compact"],
+                        value="compact",
                         interactive=True
                     )
                     language = gr.Radio(
@@ -88,16 +95,21 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
                     undo_btn = gr.Button(value="Undo")
 
     with gr.Tab("Retrieval Process"):
-        gr.Markdown("ok")
+        log = gr.Code(label="", language="shell", interactive=False, container=True, lines=30)
+        demo.load(logger.read_logs, None, log, every=1)
 
     # @send_btn.click(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
     @message.submit(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
     def get_respone(message, chatbot, mode, progress=gr.Progress(track_tqdm=True)):
+        console = sys.stdout
+        sys.stdout = Logger(LOG_FILE)
         user_mess = message
         all_text = []
         for text in rag_pipeline.query(user_mess, mode):
             all_text.append(text)
             yield "", chatbot + [[user_mess, "".join(all_text)]]
+
+        sys.stdout = console
 
     @clear_btn.click(outputs=[message, chatbot])
     @model.change(outputs=[message, chatbot])
@@ -114,8 +126,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
 
     @reset_btn.click(outputs=[message, chatbot, documents])
     def reset_chat():
-        rag_pipeline.reset_index()
-        rag_pipeline.reset_query_engine()
+        rag_pipeline.reset_index_and_engine()
         return "", [], None
 
     @pull_btn.click(inputs=[model], outputs=[message, chatbot])
@@ -170,5 +181,6 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
     @language.change(inputs=[language])
     def change_language(language):
         gr.Info(f"Change language to {language}")
+
 
 demo.launch(share=args.share, server_name="0.0.0.0")
