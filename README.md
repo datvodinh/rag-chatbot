@@ -1,47 +1,56 @@
-# Chat with multiple PDFs, using Ollama and RAG
+# Chat with multiple PDFs, using Ollama and LlamaIndex
 
 ![alt text](assets/demo.png)
-
-## TODO
-
-- Support Embedding for Vietnamese
-- Knowledge Graph
 
 ## Setup
 
 ### Install Ollama
 
-Download at: https://ollama.com/
-
-### Use OpenAI model
-
-Create file `.env` and input:
+#### Linux
 
 ```bash
-OPENAI_API_KEY = "[YOUR API KEY]"
+curl -fsSL https://ollama.com/install.sh | sh
+```
+
+#### MacOS
+
+- [Download](https://ollama.com/)
+
+### Clone project
+
+```bash
+git clone https://github.com/datvodinh/rag-chatbot.git
+cd rag-chatbot
 ```
 
 ### Local
 
+- Install
+
 ```bash
 pip install .
-
 ```
 
-### With Docker
-
-```bash
-docker compose up
-```
-
-## Run
-
-### Step 1: (Local Only)
+- Run
 
 ```bash
 python app.py --host localhost
 ```
 
-### Step 2:
+- Go to: `http://0.0.0.0:7860/` after setup completed!
 
-Go to: `http://0.0.0.0:7860/`.
+### Docker
+
+- Build
+
+```bash
+docker compose up --build
+```
+
+- Go to: `http://0.0.0.0:7860/` after setup completed!
+
+## Todo List
+
+- Support better Embedding Model for Vietnamese.
+- Knowledge Graph (for Structure Data).
+- Better Document Processing.
