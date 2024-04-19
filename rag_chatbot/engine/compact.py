@@ -5,7 +5,8 @@ from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.retrievers import (
     QueryFusionRetriever,
     VectorIndexRetriever,
-    RouterRetriever
+    RouterRetriever,
+    SummaryIndexRetriever,
 )
 from llama_index.core.tools import RetrieverTool
 from llama_index.core.selectors import LLMSingleSelector
@@ -21,7 +22,7 @@ from rag_chatbot.prompt import (
     get_query_gen_prompt,
     get_single_select_prompt
 )
-
+from rag_chatbot.setting import GlobalSettings
 
 load_dotenv()
 
@@ -29,9 +30,11 @@ load_dotenv()
 class LocalCompactEngine(LocalBaseEngine):
     def __init__(self, host: str = "host.docker.internal"):
         super().__init__()
-        self._num_queries = 6
-        self._similarity_top_k = 5
-        self._similarity_cutoff = 0.7
+        settings = GlobalSettings()
+        self._num_queries = settings.num_queries
+        self._similarity_top_k = settings.similarity_top_k
+        self._top_k_rerank = settings.top_k_rerank
+        self._similarity_cutoff = settings.similarity_cutoff
         self._host = host
 
     def _from_documents(
@@ -89,6 +92,11 @@ class LocalCompactEngine(LocalBaseEngine):
             verbose=True
         )
 
+        summary_retriever = SummaryIndexRetriever(
+            index=summary_index,
+            verbose=True
+        )
+
         fusion_tool = RetrieverTool.from_defaults(
             retriever=fusion_retriever,
             description=(
@@ -98,9 +106,7 @@ class LocalCompactEngine(LocalBaseEngine):
         )
 
         summary_tool = RetrieverTool.from_defaults(
-            retriever=summary_index.as_retriever(
-                llm=Settings.llm
-            ),
+            retriever=summary_retriever,
             description=(
                 "Efficient tool for summarizing queries, "
                 "allowing for concise extraction of key information."
@@ -133,7 +139,7 @@ class LocalCompactEngine(LocalBaseEngine):
                 response_mode="compact",
                 streaming=True,
                 verbose=True
-            )
+            ),
         )
 
         return query_engine

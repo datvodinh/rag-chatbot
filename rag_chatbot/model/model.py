@@ -13,7 +13,7 @@ class LocalRAGModel:
 
     @staticmethod
     def set(
-        model_name: str = "starling-lm:7b-beta-q6_K",
+        model_name: str = "starling-lm:7b-beta-q5_K_M",
         host: str = "host.docker.internal"
     ):
         llm_settings = LLMSettings()
@@ -36,6 +36,7 @@ class LocalRAGModel:
                 base_url=f"http://{host}:11434",
                 temperature=llm_settings.temperature,
                 context_window=llm_settings.context_window,
+                request_timeout=ollama_settings.request_timeout,
                 additional_kwargs=settings_kwargs
             )
 

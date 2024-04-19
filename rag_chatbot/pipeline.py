@@ -2,6 +2,7 @@ from rag_chatbot.embedding import LocalEmbedding
 from rag_chatbot.model import LocalRAGModel
 from rag_chatbot.ingest import DataIngestion
 from rag_chatbot.engine import LocalChatEngine, LocalCompactEngine
+from rag_chatbot.setting import GlobalSettings
 from llama_index.core import Settings
 from llama_index.core.llms import ChatMessage
 
@@ -13,8 +14,9 @@ class RAGPipeline:
         self._compact_engine = LocalCompactEngine(host=host)
         self._default_model = LocalRAGModel.set(host=host)
         self._query_engine = None
-        Settings.chunk_size = 256
-        Settings.chunk_overlap = 32
+        self.settings = GlobalSettings()
+        Settings.chunk_size = self.settings.chunk_size
+        Settings.chunk_overlap = self.settings.chunk_overlap
         Settings.llm = LocalRAGModel.set(host=host)
         Settings.embed_model = LocalEmbedding.set(host=host)
 

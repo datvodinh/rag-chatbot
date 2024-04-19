@@ -14,7 +14,7 @@ single_select_prompt_en = (
     "{context_list}"
     "\n---------------------\n"
     "Using only the choices above and not prior knowledge, return "
-    "the choice that is most relevant to the query: '{query_str}'\n"
+    "ONE AND ONLY ONE choice that is most relevant to the query: '{query_str}'\n"
 )
 
 single_select_prompt_vi = (
@@ -25,5 +25,5 @@ single_select_prompt_vi = (
     "{context_list}"
     "\n---------------------\n"
     "Chỉ sử dụng các lựa chọn ở trên và không dùng kiến thức trước đó, hãy chọn "
-    "lựa chọn mà liên quan nhất đến câu truy vấn: '{query_str}'\n"
+    "1 và chỉ 1 lựa chọn mà liên quan nhất đến câu truy vấn: '{query_str}'\n"
 )

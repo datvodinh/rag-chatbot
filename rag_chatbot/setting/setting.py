@@ -15,3 +15,12 @@ class LLMSettings(BaseModel):
     max_new_tokens: int = 256
     context_window: int = 3900
     temperature: float = 0.1
+
+
+class GlobalSettings(BaseModel):
+    chunk_size: int = 256
+    chunk_overlap: int = 32
+    num_queries: int = 6
+    similarity_top_k: int = 5
+    top_k_rerank: int = 5
+    similarity_cutoff: float = 0.5

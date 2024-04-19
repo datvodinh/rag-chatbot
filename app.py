@@ -42,23 +42,11 @@ if args.host != "host.docker.internal":
     if not is_port_open(port_number):
         run_ollama_server()
 
-with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
-    gr.Markdown("# Chat with Multiple PDFs🤖")
+with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate")) as demo:
+    gr.Markdown("# Chat with Multiple PDFs 🤖")
     with gr.Tab("Chatbot Interface"):
-        with gr.Row(variant='panel', equal_height=True):
+        with gr.Row(variant='panel', equal_height=False):
             with gr.Column(variant='panel', scale=10):
-                documents = gr.Files(
-                    label="Add Documents",
-                    value=[],
-                    file_types=[".txt", ".pdf", ".csv"],
-                    file_count="multiple",
-                    height=150
-                )
-                doc_progress = gr.Textbox(
-                    label="Status",
-                    value="Ready",
-                    interactive=False,
-                )
                 with gr.Column():
                     chat_mode = gr.Radio(
                         label="Mode",
@@ -72,21 +60,37 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
                         value="eng",
                         interactive=True
                     )
-                model = gr.Dropdown(
-                    label="Set Model",
-                    choices=[
-                        "mistral:7b-instruct-v0.2-q6_K",
-                        "starling-lm:7b-beta-q6_K",
-                        "gpt-3.5-turbo"
-                    ],
-                    value="starling-lm:7b-beta-q6_K",
-                    interactive=True,
-                    allow_custom_value=True
+                    model = gr.Dropdown(
+                        label="Set Model",
+                        choices=[
+                            "codeqwen:7b-chat-v1.5-q5_1",
+                            "llama3:8b-instruct-q5_K_M",
+                            "nous-hermes2:10.7b-solar-q4_K_M",
+                            "starling-lm:7b-beta-q5_K_M",
+                            "wizardlm2:7b-q5_K_M",
+                        ],
+                        value="starling-lm:7b-beta-q5_K_M",
+                        interactive=True,
+                        allow_custom_value=True
+                    )
+                    pull_btn = gr.Button("Set Model")
+
+                doc_progress = gr.Textbox(
+                    label="Status",
+                    value="Ready",
+                    interactive=False,
                 )
-                pull_btn = gr.Button("Set Model")
+
+                documents = gr.Files(
+                    label="Add Documents",
+                    value=[],
+                    file_types=[".txt", ".pdf", ".csv"],
+                    file_count="multiple",
+                    height=150
+                )
 
             with gr.Column(scale=30, variant="panel"):
-                chatbot = gr.Chatbot(layout='bubble', value=[], scale=2)
+                chatbot = gr.Chatbot(layout='bubble', value=[], height=500, scale=2)
                 with gr.Row(variant='panel'):
                     message = gr.Textbox(label="Enter Prompt:", scale=5, lines=1)
                 with gr.Row(variant='panel'):
@@ -95,9 +99,10 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
                     undo_btn = gr.Button(value="Undo")
 
     with gr.Tab("Retrieval Process"):
-        with gr.Row(variant="compact"):
-            log = gr.Code(label="", language="shell", interactive=False, container=True, lines=30)
-        demo.load(logger.read_logs, None, log, every=1)
+        with gr.Row(variant="panel"):
+            log = gr.Code(label="", language="markdown", interactive=False, lines=30)
+            # log = gr.TextArea(interactive=False, lines=30, max_lines=30, show_copy_button=True)
+        demo.load(logger.read_logs, None, log, every=1, show_progress="hidden", scroll_to_output=True)
 
     # @send_btn.click(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
     @message.submit(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
@@ -184,4 +189,4 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="emerald")) as demo:
         gr.Info(f"Change language to {language}")
 
 
-demo.launch(share=args.share, server_name="0.0.0.0")
+demo.launch(share=args.share, server_name="0.0.0.0", debug=False, show_api=False)

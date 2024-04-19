@@ -15,7 +15,10 @@ class DataIngestion:
         ).load_data(show_progress=True)
         for doc in documents:
             doc.excluded_embed_metadata_keys = ["doc_id"]
-            doc.excluded_llm_metadata_keys = ["file_name", "doc_id", "page_label"]
+            doc.excluded_llm_metadata_keys = [
+                "file_name", "doc_id", "page_label", "file_path",
+                "file_type", "file_size", "creation_date", "last_modified_date"
+            ]
         return documents
 
     @staticmethod
