@@ -68,6 +68,8 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate")) as demo:
                             "nous-hermes2:10.7b-solar-q4_K_M",
                             "starling-lm:7b-beta-q5_K_M",
                             "wizardlm2:7b-q5_K_M",
+                            "gpt-3.5-turbo",
+                            "gpt-4",
                         ],
                         value="starling-lm:7b-beta-q5_K_M",
                         interactive=True,

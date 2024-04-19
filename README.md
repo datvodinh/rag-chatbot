@@ -49,6 +49,14 @@ docker compose up --build
 
 - Go to: `http://0.0.0.0:7860/` after setup completed!
 
+### Use OpenAI API
+
+- Create file `.env` and input:
+
+```bash
+OPENAI_API_KEY = "[YOUR API KEY]"
+```
+
 ## Todo List
 
 - Support better Embedding Model for Vietnamese.
