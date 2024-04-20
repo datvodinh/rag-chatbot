@@ -1,13 +1,13 @@
 import os
 import chromadb
 from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.node_parser import SemanticSplitterNodeParser
 from llama_index.core import (
     Settings,
     VectorStoreIndex,
     StorageContext,
     Document,
-    DocumentSummaryIndex
+    SummaryIndex
 )
 from dotenv import load_dotenv
 
@@ -44,27 +44,30 @@ class LocalVectorStore:
     @staticmethod
     def get_index(
         documents: Document,
-        mode: str = "chat"
+        mode: str = "summary"
     ):
 
         if mode == "summary":
-            return DocumentSummaryIndex.from_documents(
+            return SummaryIndex.from_documents(
                 documents=documents,
                 transformations=[
-                    SentenceSplitter(
-                        chunk_size=Settings.chunk_size,
-                        chunk_overlap=Settings.chunk_overlap
+                    SemanticSplitterNodeParser.from_defaults(
+                        embed_model=Settings.embed_model,
+                        breakpoint_percentile_threshold=95,
+                        buffer_size=1
                     )
                 ],
                 show_progress=True
             )
+
         else:
             return VectorStoreIndex.from_documents(
                 documents=documents,
                 transformations=[
-                    SentenceSplitter(
-                        chunk_size=Settings.chunk_size,
-                        chunk_overlap=Settings.chunk_overlap
+                    SemanticSplitterNodeParser.from_defaults(
+                        embed_model=Settings.embed_model,
+                        breakpoint_percentile_threshold=95,
+                        buffer_size=1
                     )
                 ],
                 show_progress=True

@@ -1,5 +1,3 @@
-from llama_index.core.node_parser import SentenceSplitter
-from .base import LocalBaseEngine
 from dotenv import load_dotenv
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.retrievers import (
@@ -17,12 +15,14 @@ from llama_index.core import (
     get_response_synthesizer,
     Document,
 )
-from rag_chatbot.prompt import (
+from .base import LocalBaseEngine
+from ..prompt import (
     get_qa_and_refine_prompt,
     get_query_gen_prompt,
     get_single_select_prompt
 )
-from rag_chatbot.setting import GlobalSettings
+from ..setting import GlobalSettings
+from ..ingestion import LocalVectorStore
 
 load_dotenv()
 
@@ -43,28 +43,8 @@ class LocalCompactEngine(LocalBaseEngine):
         language: str,
     ):
         # GET INDEX
-        vector_index = VectorStoreIndex.from_documents(
-            documents=documents,
-            transformations=[
-                SentenceSplitter(
-                    chunk_size=Settings.chunk_size,
-                    chunk_overlap=Settings.chunk_overlap
-                )
-            ],
-            show_progress=True
-        )
-
-        summary_index = SummaryIndex.from_documents(
-            documents=documents,
-            transformations=[
-                SentenceSplitter(
-                    chunk_size=Settings.chunk_size,
-                    chunk_overlap=Settings.chunk_overlap
-                )
-            ],
-            show_progress=True
-        )
-
+        vector_index = LocalVectorStore.get_index(documents=documents, mode="vector")
+        summary_index = LocalVectorStore.get_index(documents=documents, mode="summary")
         return self._from_index(vector_index, summary_index, language)
 
     def _from_index(
@@ -136,7 +116,7 @@ class LocalCompactEngine(LocalBaseEngine):
                 llm=Settings.llm,
                 text_qa_template=qa_template,
                 refine_template=refine_template,
-                response_mode="compact",
+                response_mode="tree_summarize",
                 streaming=True,
                 verbose=True
             ),

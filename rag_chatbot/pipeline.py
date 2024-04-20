@@ -1,8 +1,8 @@
-from rag_chatbot.embedding import LocalEmbedding
-from rag_chatbot.model import LocalRAGModel
-from rag_chatbot.ingest import DataIngestion
-from rag_chatbot.engine import LocalChatEngine, LocalCompactEngine
-from rag_chatbot.setting import GlobalSettings
+from .embedding import LocalEmbedding
+from .model import LocalRAGModel
+from .ingestion import DataIngestion
+from .engine import LocalChatEngine, LocalCompactEngine
+from .setting import GlobalSettings
 from llama_index.core import Settings
 from llama_index.core.llms import ChatMessage
 

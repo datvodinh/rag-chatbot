@@ -5,8 +5,8 @@ import argparse
 import sys
 import socket
 import gradio as gr
+import llama_index
 from rag_chatbot import RAGPipeline, run_ollama_server, Logger
-import llama_index.core
 
 LOG_FILE = "logging.log"
 llama_index.core.set_global_handler("simple")
