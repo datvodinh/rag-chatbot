@@ -62,3 +62,13 @@ OPENAI_API_KEY = "[YOUR API KEY]"
 - Support better Embedding Model for Vietnamese.
 - Knowledge Graph (for Structure Data).
 - Better Document Processing.
+
+## Overview RAG Pipeline (Beta)
+
+- High Level
+
+![alt text](./assets/pipeline.png)
+
+- Retriever
+
+![alt text](./assets/retriever.png)
