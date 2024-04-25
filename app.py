@@ -71,11 +71,13 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate")) as demo:
                             "gpt-3.5-turbo",
                             "gpt-4",
                         ],
-                        value="starling-lm:7b-beta-q5_K_M",
+                        value=None,
                         interactive=True,
                         allow_custom_value=True
                     )
-                    pull_btn = gr.Button("Set Model")
+                    with gr.Row():
+                        pull_btn = gr.Button("Pull Model", visible=False, min_width=50)
+                        cancel_btn = gr.Button("Cancel", visible=False, min_width=50)
 
                 doc_progress = gr.Textbox(
                     label="Status",
@@ -107,23 +109,46 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate")) as demo:
         demo.load(logger.read_logs, None, log, every=1, show_progress="hidden", scroll_to_output=True)
 
     # @send_btn.click(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
-    @message.submit(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
-    def get_respone(message, chatbot, mode, progress=gr.Progress(track_tqdm=True)):
-        console = sys.stdout
-        sys.stdout = Logger(LOG_FILE)
-        user_mess = message
-        all_text = []
-        for text in rag_pipeline.query(user_mess, mode):
-            all_text.append(text)
-            yield "", chatbot + [[user_mess, "".join(all_text)]]
+    @message.submit(inputs=[model, message, chatbot, chat_mode], outputs=[message, chatbot])
+    def get_respone(model, message, chatbot, mode, progress=gr.Progress(track_tqdm=True)):
+        if model in [None, ""]:
+            gr.Warning("You need to set model first!")
+            return "", []
+        else:
+            console = sys.stdout
+            sys.stdout = Logger(LOG_FILE)
+            user_mess = message
+            all_text = []
+            for text in rag_pipeline.query(user_mess, mode):
+                all_text.append(text)
+                yield "", chatbot + [[user_mess, "".join(all_text)]]
 
-        sys.stdout = console
+            sys.stdout = console
 
     @clear_btn.click(outputs=[message, chatbot])
     @model.change(outputs=[message, chatbot])
     @chat_mode.change(outputs=[message, chatbot])
     def clear_chat():
         return "", []
+
+    @model.change(inputs=[model], outputs=[pull_btn, cancel_btn])
+    def get_confirm_pull_model(model):
+        if (model in ["gpt-3.5-turbo", "gpt-4"]) \
+                or (rag_pipeline.check_exist(model)) \
+                or (model in [None, ""]):
+            if model not in [None, ""]:
+                set_model(model)
+            return gr.update(visible=False), gr.update(visible=False)
+        return gr.update(visible=True), gr.update(visible=True)
+
+    @pull_btn.click(outputs=[pull_btn, cancel_btn])
+    @cancel_btn.click(outputs=[pull_btn, cancel_btn])
+    def hide_model_button():
+        return gr.update(visible=False), gr.update(visible=False)
+
+    @cancel_btn.click(outputs=[model])
+    def clear_model_choie():
+        return None
 
     @undo_btn.click(inputs=[message, chatbot], outputs=[message, chatbot])
     def undo_chat(message, history):
