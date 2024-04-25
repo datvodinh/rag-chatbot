@@ -1,57 +1,43 @@
-from llama_index.core import Document, VectorStoreIndex, Settings
-from .base import LocalBaseEngine
+from llama_index.core import VectorStoreIndex, Settings
 from llama_index.core.chat_engine import CondensePlusContextChatEngine
 from llama_index.core.memory import ChatMemoryBuffer
-from llama_index.core.retrievers import QueryFusionRetriever, VectorIndexRetriever
-from rag_chatbot.prompt import get_query_gen_prompt, get_system_prompt
+from llama_index.core.postprocessor import SentenceTransformerRerank
+from rag_chatbot.prompt import get_system_prompt
+from ..setting import RetrieverSettings
+from .retriever import LocalRetriever
 
 
-class LocalChatEngine(LocalBaseEngine):
-    def __init__(self, host: str = "host.docker.internal"):
+class LocalChatEngine:
+    def __init__(
+        self,
+        setting: RetrieverSettings | None = None,
+        host: str = "host.docker.internal"
+    ):
         super().__init__()
-        self._num_queries = 6
-        self._similarity_top_k = 5
-        self._similarity_cutoff = 0.7
+        self._setting = setting or RetrieverSettings()
+        self._retriever = LocalRetriever(self._setting)
         self._host = host
 
-    def _from_documents(self, documents: Document, language: str):
-        # GET INDEX
-        index = VectorStoreIndex.from_documents(
-            documents=documents,
-            # storage_context=storage_context,
-            show_progress=True
-        )
-
-        return self._from_index(index, language)
-
-    def _from_index(
+    def from_index(
         self,
-        index: VectorStoreIndex,
-        language: str
+        vector_index: VectorStoreIndex,
+        language: str,
     ) -> CondensePlusContextChatEngine:
-        # VECTOR INDEX RETRIEVER
-        vector_retriever = VectorIndexRetriever(
-            index=index,
-            similarity_top_k=self._similarity_top_k,
-            embed_model=Settings.embed_model,
-            verbose=True
-        )
-
-        # FUSION RETRIEVER
-        fusion_retriever = QueryFusionRetriever(
-            retrievers=[vector_retriever],
-            llm=Settings.llm,
-            query_gen_prompt=get_query_gen_prompt(language),
-            similarity_top_k=2,
-            num_queries=self._num_queries,
-            mode="reciprocal_rerank",
-            verbose=True
+        retriever = self._retriever.get_retrievers(
+            vector_index=vector_index,
+            language=language
         )
         chat_engine = CondensePlusContextChatEngine.from_defaults(
-            retriever=fusion_retriever,
+            retriever=retriever,
             llm=Settings.llm,
-            memory=ChatMemoryBuffer(token_limit=3000),
-            system_prompt=get_system_prompt(language)
+            memory=ChatMemoryBuffer(token_limit=self._setting.chat_token_limit),
+            system_prompt=get_system_prompt(language),
+            node_postprocessors=[
+                SentenceTransformerRerank(
+                    top_n=self._setting.top_k_rerank,
+                    model=self._setting.rerank_llm
+                )
+            ]
         )
 
         return chat_engine

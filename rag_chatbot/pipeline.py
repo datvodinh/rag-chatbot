@@ -1,22 +1,23 @@
 from .embedding import LocalEmbedding
 from .model import LocalRAGModel
-from .ingestion import DataIngestion
+from .ingestion import LocalDataIngestion
+from .vector_store import LocalVectorStore
 from .engine import LocalChatEngine, LocalCompactEngine
-from .setting import GlobalSettings
 from llama_index.core import Settings
 from llama_index.core.llms import ChatMessage
 
 
-class RAGPipeline:
+class LocalRAGPipeline:
     def __init__(self, host: str = "host.docker.internal") -> None:
         self._host = host
-        self._chat_engine = LocalChatEngine(host=host)
-        self._compact_engine = LocalCompactEngine(host=host)
+        self._engine = {
+            "chat": LocalChatEngine(host=host),
+            "compact": LocalCompactEngine(host=host)
+        }
         self._default_model = LocalRAGModel.set(host=host)
         self._query_engine = None
-        self.settings = GlobalSettings()
-        Settings.chunk_size = self.settings.chunk_size
-        Settings.chunk_overlap = self.settings.chunk_overlap
+        self._ingestion = LocalDataIngestion()
+        self._vector_store = LocalVectorStore(host=host)
         Settings.llm = LocalRAGModel.set(host=host)
         Settings.embed_model = LocalEmbedding.set(host=host)
 
@@ -24,8 +25,7 @@ class RAGPipeline:
         Settings.llm = LocalRAGModel.set(model_name, host=self._host)
         self._default_model = LocalRAGModel.set(model_name, host=self._host)
 
-    def reset_index_and_engine(self):
-        self._vector_index = None
+    def reset_engine(self):
         self._query_engine = None
 
     def set_embed_model(self, model_name: str):
@@ -37,29 +37,33 @@ class RAGPipeline:
     def pull_embed_model(self, model_name: str):
         return LocalEmbedding.pull(self._host, model_name)
 
-    def check_exist(self, model_name: str):
+    def check_exist(self, model_name: str) -> bool:
         return LocalRAGModel.check_model_exist(self._host, model_name)
 
-    def check_exist_embed(self, model_name: str):
+    def check_exist_embed(self, model_name: str) -> bool:
         return LocalEmbedding.check_model_exist(self._host, model_name)
 
-    def get_documents(self, input_dir: str = None, input_files: list[str] = None):
-        return DataIngestion.get_documents(input_dir, input_files)
+    def get_nodes_from_file(
+            self,
+            input_dir: str = None,
+            input_files: list[str] = None
+    ) -> None:
+        nodes = self._ingestion.get_nodes_from_file(
+            input_dir=input_dir,
+            input_files=input_files
+        )
+        return nodes
 
     def set_engine(
         self,
-        documents=None,
+        nodes,
         language: str = "eng",
         mode: str = "chat",
     ):
-        if mode == "chat":
-            self._query_engine = self._chat_engine.from_documents(
-                documents=documents, language=language
-            )
-        else:
-            self._query_engine = self._compact_engine.from_documents(
-                documents=documents, language=language
-            )
+        index = self._vector_store.get_index(nodes)
+        self._query_engine = self._engine[mode].from_index(
+            index, language=language
+        )
 
     def query(self, queries: str, mode):
         if self._query_engine is not None:

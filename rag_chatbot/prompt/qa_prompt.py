@@ -4,10 +4,9 @@ from llama_index.core.prompts.prompt_type import PromptType
 
 
 def get_qa_and_refine_prompt(language: str) -> tuple[ChatPromptTemplate, ChatPromptTemplate]:
-    if language == "eng":
-        return (qa_prompt_en, qa_prompt_refine_en)
-    else:
+    if language == "vi":
         return (qa_prompt_vi, qa_prompt_refine_vi)
+    return (qa_prompt_en, qa_prompt_refine_en)
 
 
 def get_system_prompt(language: str):

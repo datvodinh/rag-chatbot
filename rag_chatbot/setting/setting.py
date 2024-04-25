@@ -17,10 +17,25 @@ class LLMSettings(BaseModel):
     temperature: float = 0.1
 
 
-class GlobalSettings(BaseModel):
-    chunk_size: int = 256
-    chunk_overlap: int = 32
-    num_queries: int = 6
-    similarity_top_k: int = 5
+class RetrieverSettings(BaseModel):
+    num_queries: int = 4
+    similarity_top_k: int = 10
     top_k_rerank: int = 5
-    similarity_cutoff: float = 0.5
+    rerank_llm: str = "cross-encoder/ms-marco-MiniLM-L-12-v2"
+    fusion_mode: str = "reciprocal_rerank"
+    chat_token_limit: int = 3000
+
+
+class IngestionSettings(BaseModel):
+    chunk_size: int = 512
+    chunk_overlap: int = 32
+    chunking_regex: str = "[^,.;。？！]+[,.;。？！]?"
+    paragraph_sep: str = "\n\n\n"
+    num_workers: int = 0
+
+
+class StorageSettings(BaseModel):
+    persist_dir_chroma: str = "data/chroma"
+    persist_dir_storage: str = "data/storage"
+    collection_name: str = "data"
+    port: int = 8000

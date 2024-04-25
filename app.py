@@ -6,7 +6,7 @@ import sys
 import socket
 import gradio as gr
 import llama_index
-from rag_chatbot import RAGPipeline, run_ollama_server, Logger
+from rag_chatbot import LocalRAGPipeline, run_ollama_server, Logger
 
 LOG_FILE = "logging.log"
 llama_index.core.set_global_handler("simple")
@@ -28,7 +28,7 @@ args = parser.parse_args()
 INPUT_DIR = os.path.join(os.getcwd(), "data/data")
 if not os.path.exists(INPUT_DIR):
     os.makedirs(INPUT_DIR)
-rag_pipeline = RAGPipeline(host=args.host)
+rag_pipeline = LocalRAGPipeline(host=args.host)
 
 if args.host != "host.docker.internal":
     def is_port_open(port):
@@ -184,12 +184,6 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate")) as demo:
         gr.Info(f"Model {model} is ready!")
         return "", []
 
-    @documents.change(inputs=[model, documents], outputs=[message, chatbot])
-    def set_model_with_docs(model, document):
-        if document is not None:
-            return set_model(model)
-        return "", []
-
     @chat_mode.change(inputs=[documents, language, chat_mode], outputs=[doc_progress])
     @documents.change(inputs=[documents, language, chat_mode], outputs=[doc_progress])
     def processing_document(
@@ -201,11 +195,11 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate")) as demo:
             if args.host == "host.docker.internal":
                 for file_path in document:
                     shutil.move(src=file_path, dst=os.path.join(INPUT_DIR, file_path.split("/")[-1]))
-                documents = rag_pipeline.get_documents(input_dir=INPUT_DIR)
+                nodes = rag_pipeline.get_nodes_from_file(input_dir=INPUT_DIR)
             else:
-                documents = rag_pipeline.get_documents(input_files=document)
+                nodes = rag_pipeline.get_nodes_from_file(input_files=document)
             gr.Info("Indexing!")
-            rag_pipeline.set_engine(documents, language, mode)
+            rag_pipeline.set_engine(nodes, language, mode)
             gr.Info("Processing Completed!")
             return "Completed!"
         else:
