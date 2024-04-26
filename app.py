@@ -64,12 +64,10 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate")) as demo:
                         label="Set Model",
                         choices=[
                             "codeqwen:7b-chat-v1.5-q5_1",
-                            "llama3:8b-instruct-q5_K_M",
+                            "llama3:8b-instruct-q6_K",
                             "nous-hermes2:10.7b-solar-q4_K_M",
-                            "starling-lm:7b-beta-q5_K_M",
-                            "wizardlm2:7b-q5_K_M",
-                            "gpt-3.5-turbo",
-                            "gpt-4",
+                            "starling-lm:7b-beta-q6_K",
+                            "wizardlm2:7b-q6_K"
                         ],
                         value=None,
                         interactive=True,
@@ -199,7 +197,8 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate")) as demo:
             else:
                 nodes = rag_pipeline.get_nodes_from_file(input_files=document)
             gr.Info("Indexing!")
-            rag_pipeline.set_engine(nodes, language, mode)
+            rag_pipeline.store_nodes(nodes)
+            rag_pipeline.set_engine(language, mode)
             gr.Info("Processing Completed!")
             return "Completed!"
         else:

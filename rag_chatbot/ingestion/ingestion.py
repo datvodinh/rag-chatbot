@@ -1,23 +1,11 @@
+import re
 from llama_index.core import SimpleDirectoryReader, Settings
 from llama_index.core.schema import BaseNode
 from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.ingestion import IngestionPipeline
 from dotenv import load_dotenv
-from typing import Any, List
-from llama_index.core.schema import TransformComponent
+from typing import List
 from ..setting import IngestionSettings
-
-
-class ExludeMetadata(TransformComponent):
-    def __call__(self, nodes: List[BaseNode], **kwargs: Any) -> List[BaseNode]:
-        for node in nodes:
-            node.excluded_embed_metadata_keys = ["doc_id"]
-            node.excluded_llm_metadata_keys = [
-                "file_name", "doc_id", "page_label", "file_path",
-                "file_type", "file_size", "creation_date", "last_modified_date"
-            ]
-        return nodes
-
 
 load_dotenv()
 
@@ -43,10 +31,18 @@ class LocalDataIngestion:
             paragraph_separator=self._setting.paragraph_sep,
             secondary_chunking_regex=self._setting.chunking_regex
         )
+
+        for doc in documents:
+            doc.text = re.sub(r'\s+', ' ', doc.text.strip())
+            doc.excluded_embed_metadata_keys = ["doc_id"]
+            doc.excluded_llm_metadata_keys = [
+                "file_name", "doc_id", "page_label", "file_path",
+                "file_type", "file_size", "creation_date", "last_modified_date"
+            ]
+
         pipeline = IngestionPipeline(
             transformations=[
                 splitter,
-                ExludeMetadata(),
                 Settings.embed_model
             ]
         )

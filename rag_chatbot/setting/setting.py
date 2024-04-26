@@ -21,7 +21,7 @@ class RetrieverSettings(BaseModel):
     num_queries: int = 4
     similarity_top_k: int = 10
     top_k_rerank: int = 5
-    rerank_llm: str = "cross-encoder/ms-marco-MiniLM-L-12-v2"
+    rerank_llm: str = "cross-encoder/stsb-roberta-base"
     fusion_mode: str = "reciprocal_rerank"
     chat_token_limit: int = 3000
 

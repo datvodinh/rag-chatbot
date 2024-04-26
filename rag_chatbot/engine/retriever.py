@@ -109,7 +109,7 @@ class LocalRetriever:
             retrievers=[bm25_retriever, vector_retriever],
             llm=Settings.llm,
             query_gen_prompt=get_query_gen_prompt(language),
-            similarity_top_k=self._setting.similarity_top_k,
+            similarity_top_k=self._setting.similarity_top_k*2,
             num_queries=self._setting.num_queries,
             mode=self._setting.fusion_mode,
             verbose=True
@@ -131,4 +131,4 @@ class LocalRetriever:
             verbose=True
         )
 
-        return ensemble_retriever
+        return fusion_retriever

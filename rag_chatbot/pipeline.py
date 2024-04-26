@@ -18,15 +18,24 @@ class LocalRAGPipeline:
         self._query_engine = None
         self._ingestion = LocalDataIngestion()
         self._vector_store = LocalVectorStore(host=host)
+        self._nodes = []
+        self.language = "eng"
+        self.mode = "chat"
         Settings.llm = LocalRAGModel.set(host=host)
         Settings.embed_model = LocalEmbedding.set(host=host)
 
     def set_model(self, model_name: str):
         Settings.llm = LocalRAGModel.set(model_name, host=self._host)
         self._default_model = LocalRAGModel.set(model_name, host=self._host)
+        self.reset_engine()
+        if len(self._nodes) > 0:
+            self.set_engine(language=self.language, mode=self.mode)
 
     def reset_engine(self):
         self._query_engine = None
+
+    def store_nodes(self, nodes):
+        self._nodes.extend(nodes)
 
     def set_embed_model(self, model_name: str):
         Settings.embed_model = LocalEmbedding.set(model_name, self._host)
@@ -56,13 +65,14 @@ class LocalRAGPipeline:
 
     def set_engine(
         self,
-        nodes,
         language: str = "eng",
         mode: str = "chat",
     ):
-        index = self._vector_store.get_index(nodes)
+        self.language = language
+        self.mode = mode
+        index = self._vector_store.get_index(self._nodes)
         self._query_engine = self._engine[mode].from_index(
-            index, language=language
+            llm=Settings.llm, vector_index=index, language=language
         )
 
     def query(self, queries: str, mode):

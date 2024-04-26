@@ -1,4 +1,4 @@
-from llama_index.core import VectorStoreIndex, Settings
+from llama_index.core import VectorStoreIndex
 from llama_index.core.chat_engine import CondensePlusContextChatEngine
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.postprocessor import SentenceTransformerRerank
@@ -20,6 +20,7 @@ class LocalChatEngine:
 
     def from_index(
         self,
+        llm,
         vector_index: VectorStoreIndex,
         language: str,
     ) -> CondensePlusContextChatEngine:
@@ -29,7 +30,7 @@ class LocalChatEngine:
         )
         chat_engine = CondensePlusContextChatEngine.from_defaults(
             retriever=retriever,
-            llm=Settings.llm,
+            llm=llm,
             memory=ChatMemoryBuffer(token_limit=self._setting.chat_token_limit),
             system_prompt=get_system_prompt(language),
             node_postprocessors=[

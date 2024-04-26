@@ -1,10 +1,6 @@
 from dotenv import load_dotenv
 from llama_index.core.query_engine import RetrieverQueryEngine
-from llama_index.core import (
-    Settings,
-    VectorStoreIndex,
-    get_response_synthesizer,
-)
+from llama_index.core import VectorStoreIndex, get_response_synthesizer
 from llama_index.core.postprocessor import SentenceTransformerRerank
 from ..prompt import get_qa_and_refine_prompt
 from ..setting import RetrieverSettings
@@ -26,6 +22,7 @@ class LocalCompactEngine:
 
     def from_index(
         self,
+        llm,
         vector_index: VectorStoreIndex,
         language: str,
     ) -> RetrieverQueryEngine:
@@ -37,7 +34,7 @@ class LocalCompactEngine:
         query_engine = RetrieverQueryEngine.from_args(
             retriever=retriever,
             response_synthesizer=get_response_synthesizer(
-                llm=Settings.llm,
+                llm=llm,
                 text_qa_template=qa_template,
                 refine_template=refine_template,
                 response_mode="compact",
@@ -47,7 +44,7 @@ class LocalCompactEngine:
             node_postprocessors=[
                 SentenceTransformerRerank(
                     top_n=self._setting.top_k_rerank,
-                    model="cross-encoder/ms-marco-MiniLM-L-12-v2"
+                    model=self._setting.rerank_llm
                 )
             ]
         )
