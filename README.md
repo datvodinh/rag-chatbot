@@ -25,37 +25,41 @@ cd rag-chatbot
 
 ### Local
 
-- Install
+#### Install
 
 ```bash
-pip install .
+source ./scripts/install.sh
 ```
 
-- Run
+#### Run
+
+```bash
+source ./scripts/run.sh
+```
+
+or
 
 ```bash
 python app.py --host localhost
 ```
 
-- Go to: `http://0.0.0.0:7860/` after setup completed!
+#### Using Ngrok
+
+```bash
+source ./scripts/run.sh --ngrok
+```
+
+#### Go to: `http://0.0.0.0:7860/` or Ngrok link after setup completed!
 
 ### Docker
 
-- Build
+#### Build
 
 ```bash
 docker compose up --build
 ```
 
-- Go to: `http://0.0.0.0:7860/` after setup completed!
-
-### Use OpenAI API
-
-- Create file `.env` and input:
-
-```bash
-OPENAI_API_KEY = "[YOUR API KEY]"
-```
+#### Go to: `http://0.0.0.0:7860/` after setup completed!
 
 ## Todo List
 
@@ -63,12 +67,6 @@ OPENAI_API_KEY = "[YOUR API KEY]"
 - Knowledge Graph (for Structure Data).
 - Better Document Processing.
 
-## Overview RAG Pipeline (Beta)
+## Star History
 
-- High Level
-
-![alt text](./assets/pipeline.png)
-
-- Retriever
-
-![alt text](./assets/retriever.png)
+[![Star History Chart](https://api.star-history.com/svg?repos=datvodinh/rag-chatbot.git&type=Timeline)](https://star-history.com/#datvodinh/rag-chatbot.git&Timeline)
