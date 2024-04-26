@@ -69,4 +69,4 @@ docker compose up --build
 
 ## Star History
 
-[![Star History Chart](https://api.star-history.com/svg?repos=datvodinh/rag-chatbot.git&type=Timeline)](https://star-history.com/#datvodinh/rag-chatbot.git&Timeline)
+[![Star History Chart](https://api.star-history.com/svg?repos=datvodinh/rag-chatbot&type=Date)](https://star-history.com/#datvodinh/rag-chatbot&Date)
