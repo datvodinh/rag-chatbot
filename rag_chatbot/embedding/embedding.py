@@ -16,7 +16,7 @@ class LocalEmbedding:
 
     @staticmethod
     def set(
-        model_name: str = "BAAI/bge-small-en-v1.5",
+        model_name: str = "BAAI/bge-large-en-v1.5",
         host: str = "host.docker.internal"
     ):
         if model_name != "text-embedding-ada-002":

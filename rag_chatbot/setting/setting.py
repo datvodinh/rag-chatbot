@@ -18,7 +18,7 @@ class LLMSettings(BaseModel):
 
 
 class RetrieverSettings(BaseModel):
-    num_queries: int = 4
+    num_queries: int = 6
     similarity_top_k: int = 10
     top_k_rerank: int = 5
     rerank_llm: str = "cross-encoder/stsb-roberta-base"

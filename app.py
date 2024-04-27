@@ -74,9 +74,8 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                     model = gr.Dropdown(
                         label="Set Model",
                         choices=[
-                            "llama3:8b-instruct-q6_K",
                             "starling-lm:7b-beta-q6_K",
-                            "mixtral:8x7b-instruct-v0.1-q4_K_M",
+                            "llama3:8b-instruct-q6_K",
                             "nous-hermes2:10.7b-solar-q4_K_M",
                             "codeqwen:7b-chat-v1.5-q5_1",
                         ],
