@@ -168,7 +168,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
 
     @reset_btn.click(outputs=[message, chatbot, documents])
     def reset_chat():
-        rag_pipeline.reset_engine()
+        rag_pipeline.reset_conversation()
         return "", [], None
 
     @pull_btn.click(inputs=[model], outputs=[message, chatbot])

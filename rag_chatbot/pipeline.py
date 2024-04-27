@@ -34,6 +34,13 @@ class LocalRAGPipeline:
     def reset_engine(self):
         self._query_engine = None
 
+    def reset_nodes(self):
+        self._nodes = []
+
+    def reset_conversation(self):
+        self.reset_engine()
+        self.reset_nodes()
+
     def store_nodes(self, nodes):
         self._nodes.extend(nodes)
 
