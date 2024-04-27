@@ -41,11 +41,11 @@ class LocalCompactEngine:
                 streaming=True,
                 verbose=True
             ),
-            node_postprocessors=[
-                SentenceTransformerRerank(
-                    top_n=self._setting.top_k_rerank,
-                    model=self._setting.rerank_llm
-                )
-            ]
+            # node_postprocessors=[
+            #     SentenceTransformerRerank(
+            #         top_n=self._setting.top_k_rerank,
+            #         model=self._setting.rerank_llm
+            #     )
+            # ]
         )
         return query_engine

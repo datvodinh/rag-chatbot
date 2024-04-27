@@ -107,28 +107,29 @@ class LocalRetriever:
         # FUSION RETRIEVER
         fusion_retriever = NewQueryFusionRetriever(
             retrievers=[bm25_retriever, vector_retriever],
+            retriever_weights=self._setting.retriever_weights,
             llm=Settings.llm,
             query_gen_prompt=get_query_gen_prompt(language),
-            similarity_top_k=self._setting.similarity_top_k*2,
+            similarity_top_k=self._setting.top_k_rerank,
             num_queries=self._setting.num_queries,
             mode=self._setting.fusion_mode,
             verbose=True
         )
 
         # HYDE RETRIEVER
-        hyde_retriever = TransformRetriever(
-            retriever=vector_retriever,
-            query_transform=HyDEQueryTransform(
-                llm=Settings.llm,
-                hyde_prompt=get_hyde_prompt(language),
-                include_original=False
-            ),
-            verbose=True
-        )
+        # hyde_retriever = TransformRetriever(
+        #     retriever=vector_retriever,
+        #     query_transform=HyDEQueryTransform(
+        #         llm=Settings.llm,
+        #         hyde_prompt=get_hyde_prompt(language),
+        #         include_original=False
+        #     ),
+        #     verbose=True
+        # )
 
-        ensemble_retriever = EnsembleRetriever(
-            retrievers=[fusion_retriever, hyde_retriever],
-            verbose=True
-        )
+        # ensemble_retriever = EnsembleRetriever(
+        #     retrievers=[fusion_retriever, hyde_retriever],
+        #     verbose=True
+        # )
 
         return fusion_retriever

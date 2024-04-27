@@ -1,4 +1,5 @@
 from pydantic import BaseModel
+from typing import List
 
 
 class OllamaSettings(BaseModel):
@@ -20,13 +21,15 @@ class LLMSettings(BaseModel):
 class RetrieverSettings(BaseModel):
     num_queries: int = 6
     similarity_top_k: int = 10
+    retriever_weights: List[float] = [0.4, 0.6]
     top_k_rerank: int = 5
-    rerank_llm: str = "cross-encoder/stsb-roberta-base"
-    fusion_mode: str = "reciprocal_rerank"
+    # rerank_llm: str = "cross-encoder/stsb-roberta-base"
+    fusion_mode: str = "dist_based_score"
     chat_token_limit: int = 3000
 
 
 class IngestionSettings(BaseModel):
+    embed_llm: str = "intfloat/multilingual-e5-large-instruct"
     chunk_size: int = 512
     chunk_overlap: int = 32
     chunking_regex: str = "[^,.;。？！]+[,.;。？！]?"

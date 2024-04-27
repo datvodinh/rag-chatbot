@@ -4,21 +4,18 @@ import requests
 from llama_index.embeddings.huggingface import HuggingFaceEmbedding
 from llama_index.embeddings.openai import OpenAIEmbedding
 from transformers import AutoModel, AutoTokenizer
+from ..setting import IngestionSettings
 from dotenv import load_dotenv
 
 
 load_dotenv()
+setting = IngestionSettings()
 
 
 class LocalEmbedding:
-    def __init__(self) -> None:
-        pass
-
     @staticmethod
-    def set(
-        model_name: str = "BAAI/bge-large-en-v1.5",
-        host: str = "host.docker.internal"
-    ):
+    def set(**kwargs):
+        model_name = setting.embed_llm
         if model_name != "text-embedding-ada-002":
             return HuggingFaceEmbedding(
                 model=AutoModel.from_pretrained(
@@ -38,16 +35,16 @@ class LocalEmbedding:
             return OpenAIEmbedding()
 
     @staticmethod
-    def pull(host: str, model_name: str):
+    def pull(host: str, **kwargs):
         payload = {
-            "name": model_name
+            "name": setting.embed_llm
         }
         return requests.post(f"http://{host}:11434/api/pull", json=payload, stream=True)
 
     @staticmethod
-    def check_model_exist(host: str, model_name: str) -> bool:
+    def check_model_exist(host: str, **kwargs) -> bool:
         data = requests.get(f"http://{host}:11434/api/tags").json()
         list_model = [d["name"] for d in data["models"]]
-        if model_name in list_model:
+        if setting.embed_llm in list_model:
             return True
         return False

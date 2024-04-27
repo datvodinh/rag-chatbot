@@ -33,12 +33,12 @@ class LocalChatEngine:
             llm=llm,
             memory=ChatMemoryBuffer(token_limit=self._setting.chat_token_limit),
             system_prompt=get_system_prompt(language),
-            node_postprocessors=[
-                SentenceTransformerRerank(
-                    top_n=self._setting.top_k_rerank,
-                    model=self._setting.rerank_llm
-                )
-            ]
+            # node_postprocessors=[
+            #     SentenceTransformerRerank(
+            #         top_n=self._setting.top_k_rerank,
+            #         model=self._setting.rerank_llm
+            #     )
+            # ]
         )
 
         return chat_engine
