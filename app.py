@@ -8,6 +8,17 @@ import gradio as gr
 import llama_index
 from rag_chatbot import LocalRAGPipeline, run_ollama_server, Logger
 
+js_func = """
+function refresh() {
+    const url = new URL(window.location);
+
+    if (url.searchParams.get('__theme') !== 'light') {
+        url.searchParams.set('__theme', 'light');
+        window.location.href = url.href;
+    }
+}
+"""
+
 LOG_FILE = "logging.log"
 llama_index.core.set_global_handler("simple")
 logger = Logger(LOG_FILE)
@@ -42,7 +53,7 @@ if args.host != "host.docker.internal":
     if not is_port_open(port_number):
         run_ollama_server()
 
-with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate")) as demo:
+with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
     gr.Markdown("# Chat with Multiple PDFs 🤖")
     with gr.Tab("Chatbot Interface"):
         with gr.Row(variant='panel', equal_height=False):
@@ -157,7 +168,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate")) as demo:
 
     @reset_btn.click(outputs=[message, chatbot, documents])
     def reset_chat():
-        rag_pipeline.reset_index_and_engine()
+        rag_pipeline.reset_engine()
         return "", [], None
 
     @pull_btn.click(inputs=[model], outputs=[message, chatbot])
