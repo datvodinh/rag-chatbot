@@ -34,6 +34,9 @@ class LocalRAGPipeline:
     def reset_engine(self):
         self._query_engine = None
 
+    def check_nodes_exist(self):
+        return len(self._nodes) > 0
+
     def reset_nodes(self):
         self._nodes = []
 

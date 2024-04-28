@@ -1,7 +1,7 @@
 import re
 from llama_index.core import SimpleDirectoryReader, Settings
 from llama_index.core.schema import BaseNode
-from llama_index.core.node_parser import SentenceSplitter
+from llama_index.core.node_parser import SentenceSplitter, SemanticSplitterNodeParser
 from llama_index.core.ingestion import IngestionPipeline
 from dotenv import load_dotenv
 from typing import List
@@ -25,25 +25,31 @@ class LocalDataIngestion:
             filename_as_id=True
         ).load_data(show_progress=True)
 
-        splitter = SentenceSplitter.from_defaults(
-            chunk_size=self._setting.chunk_size,
-            chunk_overlap=self._setting.chunk_overlap,
-            paragraph_separator=self._setting.paragraph_sep,
-            secondary_chunking_regex=self._setting.chunking_regex
+        # splitter = SentenceSplitter.from_defaults(
+        #     chunk_size=self._setting.chunk_size,
+        #     chunk_overlap=self._setting.chunk_overlap,
+        #     paragraph_separator=self._setting.paragraph_sep,
+        #     secondary_chunking_regex=self._setting.chunking_regex
+        # )
+
+        splitter = SemanticSplitterNodeParser.from_defaults(
+            embed_model=Settings.embed_model,
+            breakpoint_percentile_threshold=95,
+            buffer_size=1
         )
 
         for doc in documents:
             doc.text = re.sub(r'\s+', ' ', doc.text.strip())
             doc.excluded_embed_metadata_keys = ["doc_id"]
             doc.excluded_llm_metadata_keys = [
-                "file_name", "doc_id", "page_label", "file_path",
+                "file_name", "doc_id", "file_path",
                 "file_type", "file_size", "creation_date", "last_modified_date"
             ]
 
         pipeline = IngestionPipeline(
             transformations=[
                 splitter,
-                Settings.embed_model
+                # Settings.embed_model
             ]
         )
         return pipeline.run(

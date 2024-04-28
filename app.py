@@ -72,8 +72,10 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                         interactive=True
                     )
                     model = gr.Dropdown(
-                        label="Set Model",
+                        label="Enter model or choose below",
                         choices=[
+                            "llama3:8b-instruct-q8_0",
+                            "starling-lm:7b-beta-q8_0",
                             "starling-lm:7b-beta-q6_K",
                             "llama3:8b-instruct-q6_K",
                             "nous-hermes2:10.7b-solar-q4_K_M",
@@ -198,7 +200,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
         document, language, mode,
         progress=gr.Progress(track_tqdm=True)
     ):
-        if document is not None:
+        if document not in [None, []]:
             gr.Info("Processing Document!")
             if args.host == "host.docker.internal":
                 for file_path in document:
@@ -214,8 +216,10 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
         else:
             return "Empty Documents"
 
-    @language.change(inputs=[language])
-    def change_language(language):
+    @language.change(inputs=[language, chat_mode])
+    def change_language(language, mode):
+        if rag_pipeline.check_nodes_exist():
+            rag_pipeline.set_engine(language, mode)
         gr.Info(f"Change language to {language}")
 
 

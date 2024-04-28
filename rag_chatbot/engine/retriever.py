@@ -5,15 +5,13 @@ from llama_index.core.retrievers import (
     BaseRetriever,
     QueryFusionRetriever,
     VectorIndexRetriever,
-    TransformRetriever,
-
+    RouterRetriever
 )
 from llama_index.core.retrievers.fusion_retriever import FUSION_MODES
 from llama_index.core.schema import IndexNode, NodeWithScore, QueryBundle
 from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.core import Settings, VectorStoreIndex
-from llama_index.core.indices.query.query_transform import HyDEQueryTransform
-from ..prompt import get_query_gen_prompt, get_hyde_prompt
+from ..prompt import get_query_gen_prompt
 from ..setting import RetrieverSettings
 
 load_dotenv()
@@ -57,22 +55,22 @@ class NewQueryFusionRetriever(QueryFusionRetriever):
         return [QueryBundle(q) for q in queries[: self.num_queries - 1]]
 
 
-class EnsembleRetriever(BaseRetriever):
-    def __init__(
-            self,
-            retrievers: List[BaseRetriever],
-            callback_manager: CallbackManager | None = None,
-            object_map: Dict | None = None, objects: List[IndexNode] | None = None,
-            verbose: bool = False
-    ) -> None:
-        super().__init__(callback_manager, object_map, objects, verbose)
-        self.retrievers = retrievers
+# class EnsembleRetriever(BaseRetriever):
+#     def __init__(
+#             self,
+#             retrievers: List[BaseRetriever],
+#             callback_manager: CallbackManager | None = None,
+#             object_map: Dict | None = None, objects: List[IndexNode] | None = None,
+#             verbose: bool = False
+#     ) -> None:
+#         super().__init__(callback_manager, object_map, objects, verbose)
+#         self.retrievers = retrievers
 
-    def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
-        list_nodes = []
-        for retriever in self.retrievers:
-            list_nodes.extend(retriever.retrieve(query_bundle))
-        return list_nodes
+#     def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
+#         list_nodes = []
+#         for retriever in self.retrievers:
+#             list_nodes.extend(retriever.retrieve(query_bundle))
+#         return list_nodes
 
 
 class LocalRetriever:
@@ -115,21 +113,5 @@ class LocalRetriever:
             mode=self._setting.fusion_mode,
             verbose=True
         )
-
-        # HYDE RETRIEVER
-        # hyde_retriever = TransformRetriever(
-        #     retriever=vector_retriever,
-        #     query_transform=HyDEQueryTransform(
-        #         llm=Settings.llm,
-        #         hyde_prompt=get_hyde_prompt(language),
-        #         include_original=False
-        #     ),
-        #     verbose=True
-        # )
-
-        # ensemble_retriever = EnsembleRetriever(
-        #     retrievers=[fusion_retriever, hyde_retriever],
-        #     verbose=True
-        # )
 
         return fusion_retriever
