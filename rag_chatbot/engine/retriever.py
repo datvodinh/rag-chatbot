@@ -108,7 +108,7 @@ class LocalRetriever:
             retriever_weights=self._setting.retriever_weights,
             llm=Settings.llm,
             query_gen_prompt=get_query_gen_prompt(language),
-            similarity_top_k=self._setting.top_k_rerank,
+            similarity_top_k=self._setting.similarity_top_k,
             num_queries=self._setting.num_queries,
             mode=self._setting.fusion_mode,
             verbose=True

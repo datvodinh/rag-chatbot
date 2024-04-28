@@ -20,17 +20,17 @@ class LLMSettings(BaseModel):
 
 class RetrieverSettings(BaseModel):
     num_queries: int = 5
-    similarity_top_k: int = 5
+    similarity_top_k: int = 20
     retriever_weights: List[float] = [0.4, 0.6]
-    top_k_rerank: int = 3
+    top_k_rerank: int = 5
     # rerank_llm: str = "cross-encoder/stsb-roberta-base"
     fusion_mode: str = "dist_based_score"
     chat_token_limit: int = 3000
 
 
 class IngestionSettings(BaseModel):
-    embed_llm: str = "intfloat/multilingual-e5-large-instruct"
-    chunk_size: int = 1024
+    embed_llm: str = "BAAI/bge-large-en-v1.5"
+    chunk_size: int = 512
     chunk_overlap: int = 32
     chunking_regex: str = "[^,.;。？！]+[,.;。？！]?"
     paragraph_sep: str = "\n\n\n"
