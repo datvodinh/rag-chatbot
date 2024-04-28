@@ -1,7 +1,7 @@
 from llama_index.core import VectorStoreIndex
 from llama_index.core.chat_engine import CondensePlusContextChatEngine
 from llama_index.core.memory import ChatMemoryBuffer
-from llama_index.core.postprocessor import SentenceTransformerRerank
+from llama_index.core.postprocessor import MetadataReplacementPostProcessor
 from rag_chatbot.prompt import get_system_prompt
 from ..setting import RetrieverSettings
 from .retriever import LocalRetriever
@@ -33,12 +33,11 @@ class LocalChatEngine:
             llm=llm,
             memory=ChatMemoryBuffer(token_limit=self._setting.chat_token_limit),
             system_prompt=get_system_prompt(language),
-            # node_postprocessors=[
-            #     SentenceTransformerRerank(
-            #         top_n=self._setting.top_k_rerank,
-            #         model=self._setting.rerank_llm
-            #     )
-            # ]
+            node_postprocessors=[
+                MetadataReplacementPostProcessor(
+                    target_metadata_key="window"
+                )
+            ]
         )
 
         return chat_engine

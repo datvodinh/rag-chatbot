@@ -30,10 +30,9 @@ class RetrieverSettings(BaseModel):
 
 class IngestionSettings(BaseModel):
     embed_llm: str = "intfloat/multilingual-e5-large-instruct"
-    chunk_size: int = 512
-    chunk_overlap: int = 32
-    chunking_regex: str = "[^,.;。？！]+[,.;。？！]?"
-    paragraph_sep: str = "\n\n\n"
+    window_size: int = 5
+    window_metadata_key: str = "window",
+    original_text_metadata_key: str = "original_text",
     num_workers: int = 0
 
 

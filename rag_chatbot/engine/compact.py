@@ -1,7 +1,7 @@
 from dotenv import load_dotenv
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core import VectorStoreIndex, get_response_synthesizer
-from llama_index.core.postprocessor import SentenceTransformerRerank
+from llama_index.core.postprocessor import MetadataReplacementPostProcessor
 from ..prompt import get_qa_and_refine_prompt
 from ..setting import RetrieverSettings
 from .retriever import LocalRetriever
@@ -41,11 +41,10 @@ class LocalCompactEngine:
                 streaming=True,
                 verbose=True
             ),
-            # node_postprocessors=[
-            #     SentenceTransformerRerank(
-            #         top_n=self._setting.top_k_rerank,
-            #         model=self._setting.rerank_llm
-            #     )
-            # ]
+            node_postprocessors=[
+                MetadataReplacementPostProcessor(
+                    target_metadata_key="window"
+                )
+            ]
         )
         return query_engine
