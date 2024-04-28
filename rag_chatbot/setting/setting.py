@@ -31,8 +31,8 @@ class RetrieverSettings(BaseModel):
 class IngestionSettings(BaseModel):
     embed_llm: str = "intfloat/multilingual-e5-large-instruct"
     window_size: int = 5
-    window_metadata_key: str = "window",
-    original_text_metadata_key: str = "original_text",
+    window_metadata_key: str = "window"
+    original_text_metadata_key: str = "original_text"
     num_workers: int = 0
 
 
