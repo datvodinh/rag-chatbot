@@ -41,10 +41,10 @@ class LocalCompactEngine:
                 streaming=True,
                 verbose=True
             ),
-            node_postprocessors=[
-                MetadataReplacementPostProcessor(
-                    target_metadata_key="window"
-                )
-            ]
+            # node_postprocessors=[
+            #     MetadataReplacementPostProcessor(
+            #         target_metadata_key="window"
+            #     )
+            # ]
         )
         return query_engine

@@ -33,11 +33,11 @@ class LocalChatEngine:
             llm=llm,
             memory=ChatMemoryBuffer(token_limit=self._setting.chat_token_limit),
             system_prompt=get_system_prompt(language),
-            node_postprocessors=[
-                MetadataReplacementPostProcessor(
-                    target_metadata_key="window"
-                )
-            ]
+            # node_postprocessors=[
+            #     MetadataReplacementPostProcessor(
+            #         target_metadata_key="window"
+            #     )
+            # ]
         )
 
         return chat_engine
