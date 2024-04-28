@@ -42,6 +42,8 @@ class LocalDataIngestion:
                 "file_type", "file_size", "creation_date", "last_modified_date"
             ]
 
+        documents = [doc for doc in documents if doc.text.strip()]
+
         pipeline = IngestionPipeline(
             transformations=[
                 splitter,

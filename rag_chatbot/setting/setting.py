@@ -29,7 +29,7 @@ class RetrieverSettings(BaseModel):
 
 
 class IngestionSettings(BaseModel):
-    embed_llm: str = "BAAI/bge-small-en-v1.5"
+    embed_llm: str = "intfloat/multilingual-e5-large-instruct"
     chunk_size: int = 1024
     chunk_overlap: int = 32
     chunking_regex: str = "[^,.;。？！]+[,.;。？！]?"
