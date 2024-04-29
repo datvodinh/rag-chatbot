@@ -13,11 +13,11 @@
     - [`On machine`](#23-on-machine)
 - [`Todo`](#🎯-todo)
 
-# ⭐️ Features
+# ⭐️ Key Features
 
-- Run locally or Kaggle (new)
+- Easy to run on `Local` or `Kaggle` (new)
 - Using any model from `Huggingface` and `Ollama`
-- Chat with multiples PDFs.
+- Process multiple PDF inputs.
 - Chat with multiples languages (Coming soon).
 - Simple UI with `Gradio`.
 
@@ -37,15 +37,25 @@ git clone https://github.com/datvodinh/rag-chatbot.git
 cd rag-chatbot
 ```
 
-### 2.2. Docker
+### 2.2 Install
+
+#### 2.2.1 Docker
 
 ```bash
 docker compose up --build
 ```
 
-### 2.3. On machine
+#### 2.2.2 Using script (Ollama, Ngrok, python package)
 
-#### 2.3.1 Install Ollama
+```bash
+source ./scripts/install_extra.sh
+```
+
+#### 2.2.3 Install manually
+
+##### 1. `Ollama`
+
+- MacOS, Window: [Download](https://ollama.com/)
 
 - Linux
 
@@ -53,17 +63,32 @@ docker compose up --build
 curl -fsSL https://ollama.com/install.sh | sh
 ```
 
-- MacOS
+##### 2. `Ngrok`
 
-- [Download](https://ollama.com/)
+- Macos
 
-#### 2.3.3 Install Package
+```bash
+brew install ngrok/ngrok/ngrok
+```
+
+- Linux
+
+```bash
+curl -s https://ngrok-agent.s3.amazonaws.com/ngrok.asc \
+| sudo tee /etc/apt/trusted.gpg.d/ngrok.asc >/dev/null \
+&& echo "deb https://ngrok-agent.s3.amazonaws.com buster main" \
+| sudo tee /etc/apt/sources.list.d/ngrok.list \
+&& sudo apt update \
+&& sudo apt install ngrok
+```
+
+##### 3. Install `rag_chatbot` Package
 
 ```bash
 source ./scripts/install.sh
 ```
 
-#### 2.3.4 Run
+### 2.3 Run
 
 ```bash
 source ./scripts/run.sh
@@ -85,10 +110,11 @@ source ./scripts/run.sh --ngrok
 
 ## 🎯 Todo
 
-- Support better Embedding Model for Vietnamese and other languages.
-- Knowledge Graph (for Structure Data).
-- Better Document Processing.
-- MLX model.
+- [ ] Support better Embedding Model for Vietnamese and other languages.
+- [ ] Knowledge Graph (for Structure Data).
+- [ ] Better Document Processing.
+- [ ] MLX model.
+- [ ] Corrective RAG
 
 ## 🌟 Star History
 
