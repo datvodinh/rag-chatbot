@@ -14,7 +14,7 @@ class OllamaSettings(BaseModel):
 
 class LLMSettings(BaseModel):
     max_new_tokens: int = 256
-    context_window: int = 3900
+    context_window: int = 8000
     temperature: float = 0.1
 
 

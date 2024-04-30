@@ -1,14 +1,13 @@
-from typing import Dict, List
+from typing import List
 from dotenv import load_dotenv
 from llama_index.core.callbacks.base import CallbackManager
 from llama_index.core.retrievers import (
     BaseRetriever,
     QueryFusionRetriever,
-    VectorIndexRetriever,
-    RouterRetriever
+    VectorIndexRetriever
 )
 from llama_index.core.retrievers.fusion_retriever import FUSION_MODES
-from llama_index.core.schema import IndexNode, NodeWithScore, QueryBundle
+from llama_index.core.schema import IndexNode, QueryBundle
 from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.core import Settings, VectorStoreIndex
 from ..prompt import get_query_gen_prompt

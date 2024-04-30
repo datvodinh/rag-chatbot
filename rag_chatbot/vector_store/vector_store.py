@@ -1,9 +1,9 @@
-import os
-import chromadb
-from typing import List
-from llama_index.vector_stores.chroma import ChromaVectorStore
-from llama_index.core.schema import BaseNode
-from llama_index.core import VectorStoreIndex, StorageContext
+# import os
+# import chromadb
+# from typing import List
+# from llama_index.vector_stores.chroma import ChromaVectorStore
+# from llama_index.core.schema import BaseNode
+from llama_index.core import VectorStoreIndex  # , StorageContext
 from dotenv import load_dotenv
 from ..setting import StorageSettings
 
@@ -33,7 +33,7 @@ class LocalVectorStore:
         # chroma_collection = remote_db.get_or_create_collection(
         #     name=self._setting.collection_name
         # )
-        
+
         # self._vector_store = ChromaVectorStore.from_collection(
         #     collection=chroma_collection
         # )
