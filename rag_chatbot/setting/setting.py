@@ -30,6 +30,8 @@ class RetrieverSettings(BaseModel):
 
 class IngestionSettings(BaseModel):
     embed_llm: str = "BAAI/bge-large-en-v1.5"
+    embed_batch_size: int = 4
+    cache_folder: str = "data/huggingface"
     chunk_size: int = 512
     chunk_overlap: int = 32
     chunking_regex: str = "[^,.;。？！]+[,.;。？！]?"

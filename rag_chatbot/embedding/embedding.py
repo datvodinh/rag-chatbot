@@ -27,9 +27,9 @@ class LocalEmbedding:
                     model_name,
                     torch_dtype=torch.float16
                 ),
-                cache_folder=os.path.join(os.getcwd(), "data/huggingface"),
+                cache_folder=os.path.join(os.getcwd(), setting.cache_folder),
                 trust_remote_code=True,
-                embed_batch_size=16
+                embed_batch_size=setting.embed_batch_size
             )
         else:
             return OpenAIEmbedding()
