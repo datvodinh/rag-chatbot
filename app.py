@@ -59,6 +59,12 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
         with gr.Row(variant='panel', equal_height=False):
             with gr.Column(variant='panel', scale=10):
                 with gr.Column():
+                    status = gr.Textbox(
+                        label="Status",
+                        value="Ready!",
+                        interactive=False,
+                    )
+
                     chat_mode = gr.Radio(
                         label="Mode",
                         choices=["chat", "compact"],
@@ -89,28 +95,25 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                         pull_btn = gr.Button("Pull Model", visible=False, min_width=50)
                         cancel_btn = gr.Button("Cancel", visible=False, min_width=50)
 
-                doc_progress = gr.Textbox(
-                    label="Status",
-                    value="Ready",
-                    interactive=False,
-                )
-
-                documents = gr.Files(
-                    label="Add Documents",
-                    value=[],
-                    file_types=[".txt", ".pdf", ".csv"],
-                    file_count="multiple",
-                    height=150
-                )
+                    documents = gr.Files(
+                        label="Add Documents",
+                        value=[],
+                        file_types=[".txt", ".pdf", ".csv"],
+                        file_count="multiple",
+                        height=150
+                    )
 
             with gr.Column(scale=30, variant="panel"):
                 chatbot = gr.Chatbot(
-                    layout='bubble', value=[], height=500, scale=2,
+                    layout='bubble', likeable=True,
+                    value=[], height=500, scale=2,
+
                     show_copy_button=True,
+                    bubble_full_width=False,
                     avatar_images=["./assets/user.png", "./assets/bot.png"]
                 )
                 with gr.Row(variant='panel'):
-                    message = gr.Textbox(label="Enter Prompt:", scale=5, lines=1)
+                    message = gr.Textbox(label="Enter Query:", scale=5, lines=1)
                 with gr.Row(variant='panel'):
                     reset_btn = gr.Button(value="Reset")
                     clear_btn = gr.Button(value="Clear")
@@ -123,11 +126,11 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
         demo.load(logger.read_logs, None, log, every=1, show_progress="hidden", scroll_to_output=True)
 
     # @send_btn.click(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
-    @message.submit(inputs=[model, message, chatbot, chat_mode], outputs=[message, chatbot])
+    @message.submit(inputs=[model, message, chatbot, chat_mode], outputs=[message, chatbot, status])
     def get_respone(model, message, chatbot, mode, progress=gr.Progress(track_tqdm=True)):
         if model in [None, ""]:
             gr.Warning("You need to set model first!")
-            return "", []
+            return "", [], "Ready!"
         else:
             console = sys.stdout
             sys.stdout = Logger(LOG_FILE)
@@ -135,15 +138,15 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
             all_text = []
             for text in rag_pipeline.query(user_mess, mode):
                 all_text.append(text)
-                yield "", chatbot + [[user_mess, "".join(all_text)]]
-
+                yield "", chatbot + [[user_mess, "".join(all_text)]], "Answering!"
+            yield "", chatbot + [[user_mess, "".join(all_text)]], "Completed!"
             sys.stdout = console
 
-    @clear_btn.click(outputs=[message, chatbot])
-    @model.change(outputs=[message, chatbot])
+    @clear_btn.click(outputs=[message, chatbot, status])
+    @model.change(outputs=[message, chatbot, status])
     @chat_mode.change(outputs=[message, chatbot])
     def clear_chat():
-        return "", []
+        return "", [], "Ready!"
 
     @model.change(inputs=[model], outputs=[pull_btn, cancel_btn])
     def get_confirm_pull_model(model):
@@ -171,12 +174,12 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
             return "", history
         return "", []
 
-    @reset_btn.click(outputs=[message, chatbot, documents])
+    @reset_btn.click(outputs=[message, chatbot, documents, status])
     def reset_chat():
         rag_pipeline.reset_conversation()
-        return "", [], None
+        return "", [], None, "Ready!"
 
-    @pull_btn.click(inputs=[model], outputs=[message, chatbot])
+    @pull_btn.click(inputs=[model], outputs=[message, chatbot, status])
     def set_model(model, progress=gr.Progress(track_tqdm=True)):
         if model in ["gpt-3.5-turbo", "gpt-4"]:
             rag_pipeline.set_model(model)
@@ -196,10 +199,10 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
         else:
             rag_pipeline.set_model(model)
         gr.Info(f"Model {model} is ready!")
-        return "", []
+        return "", [], "Ready!"
 
-    @chat_mode.change(inputs=[documents, language, chat_mode], outputs=[doc_progress])
-    @documents.change(inputs=[documents, language, chat_mode], outputs=[doc_progress])
+    @chat_mode.change(inputs=[documents, language, chat_mode], outputs=[status])
+    @documents.change(inputs=[documents, language, chat_mode], outputs=[status])
     def processing_document(
         document, language, mode,
         progress=gr.Progress(track_tqdm=True)
@@ -218,7 +221,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
             gr.Info("Processing Completed!")
             return "Completed!"
         else:
-            return "Empty Documents"
+            return "Empty Documents!"
 
     @language.change(inputs=[language, chat_mode])
     def change_language(language, mode):
