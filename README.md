@@ -9,8 +9,8 @@
   - [`Kaggle`](#1-kaggle-recommended)
   - [`Local`](#2-local)
     - [`Clone`](#21-clone-project)
-    - [`Docker`](#22-docker)
-    - [`On machine`](#23-on-machine)
+    - [`Install`](#22-install)
+    - [`Run`](#23-run)
 - [`Todo`](#🎯-todo)
 
 # ⭐️ Key Features
@@ -106,7 +106,7 @@ python app.py --host localhost
 source ./scripts/run.sh --ngrok
 ```
 
-### 3. Go to: `http://0.0.0.0:7860/` or Ngrok link after setup completed!
+### 3. Go to: `http://0.0.0.0:7860/` or Ngrok link after setup completed
 
 ## 🎯 Todo
 
