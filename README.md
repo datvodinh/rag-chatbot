@@ -110,6 +110,7 @@ source ./scripts/run.sh --ngrok
 
 ## 🎯 Todo
 
+- [ ] Add evaluation.
 - [ ] Support better Embedding Model for Vietnamese and other languages.
 - [ ] Knowledge Graph (for Structure Data).
 - [ ] Better Document Processing.

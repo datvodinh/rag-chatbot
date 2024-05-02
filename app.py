@@ -104,7 +104,11 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                 )
 
             with gr.Column(scale=30, variant="panel"):
-                chatbot = gr.Chatbot(layout='bubble', value=[], height=500, scale=2)
+                chatbot = gr.Chatbot(
+                    layout='bubble', value=[], height=500, scale=2,
+                    show_copy_button=True,
+                    avatar_images=["./assets/user.png", "./assets/bot.png"]
+                )
                 with gr.Row(variant='panel'):
                     message = gr.Textbox(label="Enter Prompt:", scale=5, lines=1)
                 with gr.Row(variant='panel'):
