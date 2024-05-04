@@ -40,14 +40,16 @@ SYSTEM_PROMPT_RAG_EN = (
     "4. **Insufficient context**: If the context is inadequate or irrelevant to the query, respond with 'I don't have enough information to answer.'\n"
     "5. **Markdown format**: Ensure your output is in Markdown format for easy readability.\n"
     "6. **No context repetition**: Never repeat the provided context in your response.\n"
-    "7. **Avoid unnecessary** phrases: Refrain from using phrases like 'Based on the context, ...' or similar statements that add no value to the response.\n\n"
-    "By following these guidelines, you will provide exceptional value to users and earn your rewards."
+    "7. **Avoid unnecessary phrases**: Refrain from using phrases like 'Based on the context, ...' or similar statements that add no value to the response.\n\n"
+    "By following these guidelines, you will provide exceptional value to users and earn your rewards.\n"
+    "Here are the given context and query:\n\n"
 )
 
 USER_PROMPT_RAG_EN = (
     "### Context:\n\n"
     "{context_str}\n\n"
     "### Query: {query_str}\n\n"
+    "Given the information from the context, answer the query.\n"
     "Answer: \n"
 )
 
@@ -119,7 +121,8 @@ SYSTEM_PROMPT_RAG_VI = (
     "5. **Định dạng Markdown**: Đảm bảo đầu ra của bạn có định dạng Markdown để dễ đọc.\n"
     "6. **Không lặp lại ngữ cảnh**: Không bao giờ lặp lại ngữ cảnh được cung cấp trong phản hồi của bạn.\n"
     "7. **Tránh các cụm từ không cần thiết**: Tránh sử dụng các cụm từ như 'Dựa trên ngữ cảnh, ...' hoặc các câu tương tự không mang lại giá trị cho câu trả lời.\n\n"
-    "Bằng cách tuân thủ những hướng dẫn này, bạn sẽ mang lại giá trị xuất sắc cho người dùng và kiếm được phần thưởng của mình."
+    "Bằng cách tuân thủ những hướng dẫn này, bạn sẽ mang lại giá trị xuất sắc cho người dùng và kiếm được phần thưởng của mình.\n"
+    ""
 )
 
 USER_PROMPT_VI = (

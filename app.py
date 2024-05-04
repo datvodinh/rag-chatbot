@@ -132,7 +132,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                     label="System Prompt",
                     value=rag_pipeline.get_system_prompt(),
                     interactive=True,
-                    lines=30,
+                    lines=20,
                     max_lines=50
                 )
                 sys_prompt_btn = gr.Button(value="Set System Prompt")
