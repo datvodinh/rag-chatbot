@@ -51,8 +51,8 @@ class LocalDataIngestion:
         pipeline = IngestionPipeline(
             transformations=[
                 splitter,
-                SummaryExtractor(summaries=["self"]),
-                KeywordExtractor(keywords=10),
+                # SummaryExtractor(summaries=["self"]),
+                # KeywordExtractor(keywords=10),
                 Settings.embed_model
             ]
         )
