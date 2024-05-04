@@ -43,8 +43,18 @@ class LocalRAGPipeline:
     def get_system_prompt(self):
         return self._system_prompt
 
-    def set_system_prompt(self, system_prompt: str | None = None):
+    def set_system_prompt(
+        self,
+        system_prompt: str | None = None
+    ):
         self._system_prompt = system_prompt
+
+    def set_system_prompt_by_lang(
+        self,
+        language: str,
+        is_rag_prompt: bool
+    ):
+        self._system_prompt = get_system_prompt(language, is_rag_prompt)
 
     def reset_engine(self):
         self._query_engine = None

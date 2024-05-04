@@ -87,7 +87,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                             "nous-hermes2:10.7b-solar-q4_K_M",
                             "codeqwen:7b-chat-v1.5-q5_1",
                         ],
-                        value=None,
+                        value="llama3:8b-instruct-q8_0",
                         interactive=True,
                         allow_custom_value=True
                     )
@@ -245,15 +245,20 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
 
     @language.change(inputs=[model, language, chat_mode])
     def change_language(model, language, mode):
+        rag_pipeline.set_language(language)
+        rag_pipeline.set_system_prompt_by_lang(language)
+        rag_pipeline.set_model(model)
         if rag_pipeline.check_nodes_exist():
-            rag_pipeline.set_language(language)
-            rag_pipeline.set_model(model)
             rag_pipeline.set_engine(mode)
         gr.Info(f"Change language to {language}")
 
-    @sys_prompt_btn.click(inputs=[system_prompt])
-    def set_system_prompt(sys_prompt):
+    @sys_prompt_btn.click(inputs=[model, system_prompt, chat_mode])
+    def change_system_prompt(model, sys_prompt, mode):
         rag_pipeline.set_system_prompt(sys_prompt)
+        rag_pipeline.set_language(language)
+        rag_pipeline.set_model(model)
+        if rag_pipeline.check_nodes_exist():
+            rag_pipeline.set_engine(mode)
         gr.Info("System prompt updated!")
 
 
