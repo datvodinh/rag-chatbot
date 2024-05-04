@@ -57,7 +57,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
     gr.Markdown("# Chat with Multiple PDFs 🤖")
     with gr.Tab("Interface"):
         with gr.Row(variant='panel', equal_height=False):
-            with gr.Column(variant='panel', scale=10):
+            with gr.Column(variant='panel', scale=10) as setting:
                 with gr.Column():
                     status = gr.Textbox(
                         label="Status",
@@ -115,9 +115,16 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                 with gr.Row(variant='panel'):
                     message = gr.Textbox(label="Enter Query:", scale=5, lines=1)
                 with gr.Row(variant='panel'):
-                    reset_btn = gr.Button(value="Reset")
-                    clear_btn = gr.Button(value="Clear")
-                    undo_btn = gr.Button(value="Undo")
+                    ui_btn = gr.Button(value="Show/Hide Setting", min_width=20)
+                    undo_btn = gr.Button(value="Undo", min_width=20)
+                    clear_btn = gr.Button(value="Clear", min_width=20)
+                    reset_btn = gr.Button(value="Reset", min_width=20)
+                    sidebar_state = gr.State(False)
+
+                    @ui_btn.click(inputs=[sidebar_state], outputs=[setting, sidebar_state])
+                    def show_hide_setting(state):
+                        state = not state
+                        return gr.update(visible=state), state
 
     with gr.Tab("Output"):
         with gr.Row(variant="panel"):
