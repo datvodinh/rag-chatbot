@@ -17,6 +17,7 @@ class LocalRAGModel:
     @staticmethod
     def set(
         model_name: str = "llama3:8b-instruct-q8_0",
+        system_prompt: str | None = None,
         host: str = "host.docker.internal"
     ):
 
@@ -35,6 +36,7 @@ class LocalRAGModel:
             }
             return Ollama(
                 model=model_name,
+                system_prompt=system_prompt,
                 base_url=f"http://{host}:{ollama_settings.port}",
                 temperature=llm_settings.temperature,
                 context_window=llm_settings.context_window,

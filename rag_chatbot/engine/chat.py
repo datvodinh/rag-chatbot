@@ -35,7 +35,7 @@ class LocalChatEngine:
             system_prompt=get_system_prompt(language),
             node_postprocessors=[
                 SentenceTransformerRerank(
-                    model="BAAI/bge-reranker-large",
+                    model=self._setting.rerank_llm,
                     top_n=self._setting.top_k_rerank
                 )
             ]

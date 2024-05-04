@@ -23,7 +23,7 @@ class RetrieverSettings(BaseModel):
     similarity_top_k: int = 20
     retriever_weights: List[float] = [0.4, 0.6]
     top_k_rerank: int = 4
-    # rerank_llm: str = "cross-encoder/stsb-roberta-base"
+    rerank_llm: str = "BAAI/bge-reranker-large"
     fusion_mode: str = "dist_based_score"
     chat_token_limit: int = 3000
 

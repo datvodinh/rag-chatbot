@@ -15,6 +15,7 @@ class LocalRAGPipeline:
             "compact": LocalCompactEngine(host=host)
         }
         self._default_model = LocalRAGModel.set(host=host)
+        self._system_prompt = None
         self._query_engine = None
         self._ingestion = LocalDataIngestion()
         self._vector_store = LocalVectorStore(host=host)
@@ -25,11 +26,18 @@ class LocalRAGPipeline:
         Settings.embed_model = LocalEmbedding.set(host=host)
 
     def set_model(self, model_name: str):
-        Settings.llm = LocalRAGModel.set(model_name, host=self._host)
-        self._default_model = LocalRAGModel.set(model_name, host=self._host)
+        Settings.llm = LocalRAGModel.set(
+            model_name=model_name,
+            system_prompt=self._system_prompt,
+            host=self._host
+        )
+        self._default_model = Settings.llm
         self.reset_engine()
         if len(self._nodes) > 0:
             self.set_engine(language=self.language, mode=self.mode)
+
+    def set_system_prompt(self, system_prompt: str | None = None):
+        self._system_prompt = system_prompt
 
     def reset_engine(self):
         self._query_engine = None
@@ -96,6 +104,7 @@ class LocalRAGPipeline:
         else:
             response = self._default_model.stream_chat(
                 [
+                    ChatMessage(role="system", content=self._system_prompt),
                     ChatMessage(role="user", content=queries)
                 ]
             )

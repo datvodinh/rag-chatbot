@@ -43,9 +43,9 @@ class LocalCompactEngine:
             ),
             node_postprocessors=[
                 SentenceTransformerRerank(
-                    model="BAAI/bge-reranker-large",
+                    model=self._setting.rerank_llm,
                     top_n=self._setting.top_k_rerank
                 )
             ]
         )
-        return query_engine
+        return query_engine 

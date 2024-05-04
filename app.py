@@ -7,6 +7,7 @@ import socket
 import gradio as gr
 import llama_index
 from rag_chatbot import LocalRAGPipeline, run_ollama_server, Logger
+from rag_chatbot.prompt import get_system_prompt
 
 js_func = """
 function refresh() {
@@ -55,7 +56,7 @@ if args.host != "host.docker.internal":
 
 with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
     gr.Markdown("# Chat with Multiple PDFs 🤖")
-    with gr.Tab("Chatbot Interface"):
+    with gr.Tab("Interface"):
         with gr.Row(variant='panel', equal_height=False):
             with gr.Column(variant='panel', scale=10):
                 with gr.Column():
@@ -119,13 +120,33 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                     clear_btn = gr.Button(value="Clear")
                     undo_btn = gr.Button(value="Undo")
 
-    with gr.Tab("Retrieval Process"):
+    with gr.Tab("Output"):
         with gr.Row(variant="panel"):
             log = gr.Code(label="", language="markdown", interactive=False, lines=30)
             # log = gr.TextArea(interactive=False, lines=30, max_lines=30, show_copy_button=True)
         demo.load(logger.read_logs, None, log, every=1, show_progress="hidden", scroll_to_output=True)
 
+    with gr.Tab("Setting"):
+        with gr.Row(variant='panel', equal_height=False):
+            with gr.Column():
+                system_prompt = gr.Textbox(
+                    label="System Prompt",
+                    value=get_system_prompt("eng"),
+                    interactive=True,
+                    lines=10,
+                    max_lines=50
+                )
+                sys_prompt_btn = gr.Button(value="Set System Prompt")
+            # with gr.Column():
+            #     gr.Textbox(
+            #         label="User prompt",
+            #         interactive=True,
+            #         lines=10,
+            #         max_lines=50
+            #     )
+            #     user_prompt_btn = gr.Button(value="Set User Prompt")
     # @send_btn.click(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
+
     @message.submit(inputs=[model, message, chatbot, chat_mode], outputs=[message, chatbot, status])
     def get_respone(model, message, chatbot, mode, progress=gr.Progress(track_tqdm=True)):
         if model in [None, ""]:
@@ -228,6 +249,11 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
         if rag_pipeline.check_nodes_exist():
             rag_pipeline.set_engine(language, mode)
         gr.Info(f"Change language to {language}")
+
+    @sys_prompt_btn.click(inputs=[system_prompt])
+    def set_system_prompt(sys_prompt):
+        rag_pipeline.set_system_prompt(sys_prompt)
+        gr.Info("System prompt updated!")
 
 
 demo.launch(share=args.share, server_name="0.0.0.0", debug=False, show_api=False)
