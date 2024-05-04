@@ -3,6 +3,7 @@ from .model import LocalRAGModel
 from .ingestion import LocalDataIngestion
 from .vector_store import LocalVectorStore
 from .engine import LocalChatEngine, LocalCompactEngine
+from .prompt import get_system_prompt
 from llama_index.core import Settings
 from llama_index.core.llms import ChatMessage
 
@@ -15,13 +16,13 @@ class LocalRAGPipeline:
             "compact": LocalCompactEngine(host=host)
         }
         self._default_model = LocalRAGModel.set(host=host)
-        self._system_prompt = None
+        self._system_prompt = get_system_prompt("eng", is_rag_prompt=False)
         self._query_engine = None
         self._ingestion = LocalDataIngestion()
         self._vector_store = LocalVectorStore(host=host)
         self._nodes = []
-        self.language = "eng"
-        self.mode = "chat"
+        self._language = "eng"
+        self._mode = "chat"
         Settings.llm = LocalRAGModel.set(host=host)
         Settings.embed_model = LocalEmbedding.set(host=host)
 
@@ -32,9 +33,15 @@ class LocalRAGPipeline:
             host=self._host
         )
         self._default_model = Settings.llm
-        self.reset_engine()
-        if len(self._nodes) > 0:
-            self.set_engine(language=self.language, mode=self.mode)
+
+    def set_language(self, language: str):
+        self._language = language
+
+    def set_mode(self, mode: str):
+        self._mode = mode
+
+    def get_system_prompt(self):
+        return self._system_prompt
 
     def set_system_prompt(self, system_prompt: str | None = None):
         self._system_prompt = system_prompt
@@ -51,6 +58,9 @@ class LocalRAGPipeline:
     def reset_conversation(self):
         self.reset_engine()
         self.reset_nodes()
+        self.set_system_prompt(
+            get_system_prompt(language=self._language, is_rag_prompt=False)
+        )
 
     def store_nodes(self, nodes):
         self._nodes.extend(nodes)
@@ -83,14 +93,13 @@ class LocalRAGPipeline:
 
     def set_engine(
         self,
-        language: str = "eng",
         mode: str = "chat",
     ):
-        self.language = language
-        self.mode = mode
+        self.set_mode(mode)
+        self.set_system_prompt(get_system_prompt(language=self._language, is_rag_prompt=True))
         index = self._vector_store.get_index(self._nodes)
         self._query_engine = self._engine[mode].from_index(
-            llm=Settings.llm, vector_index=index, language=language
+            llm=self._default_model, vector_index=index, language=self._language
         )
 
     def query(self, queries: str, mode):

@@ -7,7 +7,6 @@ import socket
 import gradio as gr
 import llama_index
 from rag_chatbot import LocalRAGPipeline, run_ollama_server, Logger
-from rag_chatbot.prompt import get_system_prompt
 
 js_func = """
 function refresh() {
@@ -131,21 +130,12 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
             with gr.Column():
                 system_prompt = gr.Textbox(
                     label="System Prompt",
-                    value=get_system_prompt("eng"),
+                    value=rag_pipeline.get_system_prompt(),
                     interactive=True,
-                    lines=10,
+                    lines=30,
                     max_lines=50
                 )
                 sys_prompt_btn = gr.Button(value="Set System Prompt")
-            # with gr.Column():
-            #     gr.Textbox(
-            #         label="User prompt",
-            #         interactive=True,
-            #         lines=10,
-            #         max_lines=50
-            #     )
-            #     user_prompt_btn = gr.Button(value="Set User Prompt")
-    # @send_btn.click(inputs=[message, chatbot, chat_mode], outputs=[message, chatbot])
 
     @message.submit(inputs=[model, message, chatbot, chat_mode], outputs=[message, chatbot, status])
     def get_respone(model, message, chatbot, mode, progress=gr.Progress(track_tqdm=True)):
@@ -222,10 +212,10 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
         gr.Info(f"Model {model} is ready!")
         return "", [], "Ready!"
 
-    @chat_mode.change(inputs=[documents, language, chat_mode], outputs=[status])
-    @documents.change(inputs=[documents, language, chat_mode], outputs=[status])
+    @chat_mode.change(inputs=[documents, model, language, chat_mode], outputs=[status, system_prompt])
+    @documents.change(inputs=[documents, model, language, chat_mode], outputs=[status, system_prompt])
     def processing_document(
-        document, language, mode,
+        document, model, language, mode,
         progress=gr.Progress(track_tqdm=True)
     ):
         if document not in [None, []]:
@@ -238,16 +228,20 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                 nodes = rag_pipeline.get_nodes_from_file(input_files=document)
             gr.Info("Indexing!")
             rag_pipeline.store_nodes(nodes)
-            rag_pipeline.set_engine(language, mode)
+            rag_pipeline.set_language(language)
+            rag_pipeline.set_model(model)
+            rag_pipeline.set_engine(mode)
             gr.Info("Processing Completed!")
-            return "Completed!"
+            return "Completed!", rag_pipeline.get_system_prompt()
         else:
-            return "Empty Documents!"
+            return "Empty Documents!", rag_pipeline.get_system_prompt()
 
-    @language.change(inputs=[language, chat_mode])
-    def change_language(language, mode):
+    @language.change(inputs=[model, language, chat_mode])
+    def change_language(model, language, mode):
         if rag_pipeline.check_nodes_exist():
-            rag_pipeline.set_engine(language, mode)
+            rag_pipeline.set_language(language)
+            rag_pipeline.set_model(model)
+            rag_pipeline.set_engine(mode)
         gr.Info(f"Change language to {language}")
 
     @sys_prompt_btn.click(inputs=[system_prompt])
