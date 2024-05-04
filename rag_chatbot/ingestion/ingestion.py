@@ -1,3 +1,7 @@
+from llama_index.core.extractors import (
+    SummaryExtractor,
+    KeywordExtractor,
+)
 import re
 from llama_index.core import SimpleDirectoryReader, Settings
 from llama_index.core.schema import BaseNode
@@ -47,6 +51,8 @@ class LocalDataIngestion:
         pipeline = IngestionPipeline(
             transformations=[
                 splitter,
+                SummaryExtractor(summaries=["self"]),
+                KeywordExtractor(keywords=10),
                 Settings.embed_model
             ]
         )
