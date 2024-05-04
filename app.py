@@ -82,12 +82,11 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                         choices=[
                             "llama3:8b-instruct-q8_0",
                             "starling-lm:7b-beta-q8_0",
-                            "starling-lm:7b-beta-q6_K",
-                            "llama3:8b-instruct-q6_K",
+                            "mixtral:instruct",
                             "nous-hermes2:10.7b-solar-q4_K_M",
                             "codeqwen:7b-chat-v1.5-q5_1",
                         ],
-                        value="llama3:8b-instruct-q8_0",
+                        value=None,
                         interactive=True,
                         allow_custom_value=True
                     )
