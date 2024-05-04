@@ -1,5 +1,6 @@
 import asyncio
 import threading
+import os
 
 
 def run_ollama_server():
@@ -8,7 +9,8 @@ def run_ollama_server():
         process = await asyncio.create_subprocess_exec(
             *cmd,
             stdout=asyncio.subprocess.PIPE,
-            stderr=asyncio.subprocess.PIPE
+            stderr=asyncio.subprocess.PIPE,
+            env={**os.environ, 'OLLAMA_NUM_PARALLEL': '8', 'OLLAMA_MAX_LOADED_MODELS': '1'}
         )
 
         # define an async pipe function
