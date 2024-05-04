@@ -3,13 +3,13 @@ from typing import List
 
 
 class OllamaSettings(BaseModel):
-    keep_alive: str = "5m"
+    keep_alive: str = "10m"
     tfs_z: float = 1.0
     top_k: int = 40
     top_p: float = 0.9
     repeat_last_n: int = 64
     repeat_penalty: float = 1.1
-    request_timeout: float = 120.0
+    request_timeout: float = 600.0
     port: int = 11434
 
 
