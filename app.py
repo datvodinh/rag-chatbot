@@ -60,22 +60,13 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
             with gr.Column(variant='panel', scale=10) as setting:
                 with gr.Column():
                     status = gr.Textbox(
-                        label="Status",
-                        value="Ready!",
-                        interactive=False,
+                        label="Status", value="Ready!", interactive=False
                     )
-
                     chat_mode = gr.Radio(
-                        label="Mode",
-                        choices=["chat", "compact"],
-                        value="compact",
-                        interactive=True
+                        label="Mode", choices=["chat", "compact"], value="compact", interactive=True
                     )
                     language = gr.Radio(
-                        label="Language",
-                        choices=["vi", "eng"],
-                        value="eng",
-                        interactive=True
+                        label="Language", choices=["vi", "eng"], value="eng", interactive=True
                     )
                     model = gr.Dropdown(
                         label="Enter model or choose below",
@@ -95,11 +86,8 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                         cancel_btn = gr.Button("Cancel", visible=False, min_width=50)
 
                     documents = gr.Files(
-                        label="Add Documents",
-                        value=[],
-                        file_types=[".txt", ".pdf", ".csv"],
-                        file_count="multiple",
-                        height=150
+                        label="Add Documents", value=[],
+                        file_types=[".txt", ".pdf", ".csv"], file_count="multiple", height=150
                     )
 
             with gr.Column(scale=30, variant="panel"):
@@ -234,9 +222,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                 nodes = rag_pipeline.get_nodes_from_file(input_files=document)
             gr.Info("Indexing!")
             rag_pipeline.store_nodes(nodes)
-            rag_pipeline.set_language(language)
-            rag_pipeline.set_model(model)
-            rag_pipeline.set_engine(mode)
+            rag_pipeline.set_chat_mode(model, language, mode)
             gr.Info("Processing Completed!")
             return "Completed!", rag_pipeline.get_system_prompt()
         else:
@@ -244,20 +230,12 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
 
     @language.change(inputs=[model, language, chat_mode])
     def change_language(model, language, mode):
-        using_rag = rag_pipeline.check_nodes_exist()
-        rag_pipeline.set_language(language)
-        rag_pipeline.set_system_prompt_by_lang(language, using_rag)
-        rag_pipeline.set_model(model)
-        if using_rag:
-            rag_pipeline.set_engine(mode)
+        rag_pipeline.set_chat_mode(model, language, mode)
         gr.Info(f"Change language to {language}")
 
     @sys_prompt_btn.click(inputs=[model, system_prompt, chat_mode])
     def change_system_prompt(model, sys_prompt, mode):
-        rag_pipeline.set_system_prompt(sys_prompt)
-        rag_pipeline.set_model(model)
-        if rag_pipeline.check_nodes_exist():
-            rag_pipeline.set_engine(mode)
+        rag_pipeline.set_chat_mode(model, language, mode, sys_prompt)
         gr.Info("System prompt updated!")
 
 

@@ -45,16 +45,14 @@ class LocalRAGPipeline:
 
     def set_system_prompt(
         self,
-        system_prompt: str | None = None
+        system_prompt: str | None = None,
+        language: str | None = None,
+        is_rag_prompt: bool = False
     ):
-        self._system_prompt = system_prompt
-
-    def set_system_prompt_by_lang(
-        self,
-        language: str,
-        is_rag_prompt: bool
-    ):
-        self._system_prompt = get_system_prompt(language, is_rag_prompt)
+        self._system_prompt = system_prompt or get_system_prompt(
+            language=language or self._language,
+            is_rag_prompt=is_rag_prompt
+        )
 
     def reset_engine(self):
         self._query_engine = None
@@ -91,9 +89,9 @@ class LocalRAGPipeline:
         return LocalEmbedding.check_model_exist(self._host, model_name)
 
     def get_nodes_from_file(
-            self,
-            input_dir: str = None,
-            input_files: list[str] = None
+        self,
+        input_dir: str = None,
+        input_files: list[str] = None
     ) -> None:
         nodes = self._ingestion.get_nodes_from_file(
             input_dir=input_dir,
@@ -101,12 +99,27 @@ class LocalRAGPipeline:
         )
         return nodes
 
+    def set_chat_mode(
+        self,
+        model: str,
+        language: str,
+        mode: str,
+        system_prompt: str | None = None
+    ):
+        self.set_language(language)
+        if self.check_nodes_exist():
+            self.set_system_prompt(system_prompt, language, is_rag_prompt=True)
+            self.set_model(model)
+            self.set_engine(mode)
+        else:
+            self.set_system_prompt(system_prompt, language, is_rag_prompt=False)
+            self.set_model(model)
+
     def set_engine(
         self,
         mode: str = "chat",
     ):
         self.set_mode(mode)
-        self.set_system_prompt(get_system_prompt(language=self._language, is_rag_prompt=True))
         index = self._vector_store.get_index(self._nodes)
         self._query_engine = self._engine[mode].from_index(
             llm=self._default_model, vector_index=index, language=self._language

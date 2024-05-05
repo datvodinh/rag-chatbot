@@ -74,10 +74,6 @@ REFINE_PROMPT_EN = (
 qa_prompt_en = ChatPromptTemplate(
     [
         ChatMessage(
-            content=SYSTEM_PROMPT_RAG_EN,
-            role=MessageRole.SYSTEM,
-        ),
-        ChatMessage(
             content=USER_PROMPT_RAG_EN,
             role=MessageRole.USER,
         ),
@@ -87,10 +83,6 @@ qa_prompt_en = ChatPromptTemplate(
 
 qa_prompt_refine_en = ChatPromptTemplate(
     [
-        ChatMessage(
-            content=SYSTEM_PROMPT_RAG_EN,
-            role=MessageRole.SYSTEM,
-        ),
         ChatMessage(
             content=REFINE_PROMPT_EN,
             role=MessageRole.USER,
@@ -154,10 +146,6 @@ REFINE_PROMPT_VI = (
 qa_prompt_vi = ChatPromptTemplate(
     [
         ChatMessage(
-            content=SYSTEM_PROMPT_RAG_VI,
-            role=MessageRole.SYSTEM,
-        ),
-        ChatMessage(
             content=USER_PROMPT_VI,
             role=MessageRole.USER,
         ),
@@ -167,10 +155,6 @@ qa_prompt_vi = ChatPromptTemplate(
 
 qa_prompt_refine_vi = ChatPromptTemplate(
     [
-        ChatMessage(
-            content=SYSTEM_PROMPT_RAG_VI,
-            role=MessageRole.SYSTEM,
-        ),
         ChatMessage(
             content=REFINE_PROMPT_VI,
             role=MessageRole.USER,
