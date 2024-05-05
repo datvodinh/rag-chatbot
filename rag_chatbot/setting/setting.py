@@ -3,13 +3,13 @@ from typing import List
 
 
 class OllamaSettings(BaseModel):
-    keep_alive: str = "10m"
+    keep_alive: str = "1h"
     tfs_z: float = 1.0
     top_k: int = 40
     top_p: float = 0.9
     repeat_last_n: int = 64
     repeat_penalty: float = 1.1
-    request_timeout: float = 600.0
+    request_timeout: float = 300.0
     port: int = 11434
 
 
@@ -29,8 +29,8 @@ class RetrieverSettings(BaseModel):
 
 
 class IngestionSettings(BaseModel):
-    embed_llm: str = "BAAI/bge-large-en-v1.5"
-    embed_batch_size: int = 2
+    embed_llm: str = "BAAI/bge-base-en-v1.5"
+    embed_batch_size: int = 4
     cache_folder: str = "data/huggingface"
     chunk_size: int = 1024
     chunk_overlap: int = 32

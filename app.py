@@ -54,7 +54,7 @@ if args.host != "host.docker.internal":
         run_ollama_server()
 
 with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
-    gr.Markdown("# Chat with Multiple PDFs 🤖")
+    gr.Markdown("## Local RAG Chatbot 🤖")
     with gr.Tab("Interface"):
         with gr.Row(variant='panel', equal_height=False):
             with gr.Column(variant='panel', scale=10) as setting:
@@ -105,7 +105,7 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
             with gr.Column(scale=30, variant="panel"):
                 chatbot = gr.Chatbot(
                     layout='bubble', likeable=True,
-                    value=[], height=500, scale=2,
+                    value=[], height=550, scale=2,
 
                     show_copy_button=True,
                     bubble_full_width=False,
