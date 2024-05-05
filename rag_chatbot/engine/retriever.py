@@ -11,7 +11,7 @@ from llama_index.core.schema import IndexNode, QueryBundle
 from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.core import Settings, VectorStoreIndex
 from ..prompt import get_query_gen_prompt
-from ..setting import RetrieverSettings
+from ..setting import RAGSettings
 
 load_dotenv()
 
@@ -54,32 +54,14 @@ class NewQueryFusionRetriever(QueryFusionRetriever):
         return [QueryBundle(q) for q in queries[: self.num_queries - 1]]
 
 
-# class EnsembleRetriever(BaseRetriever):
-#     def __init__(
-#             self,
-#             retrievers: List[BaseRetriever],
-#             callback_manager: CallbackManager | None = None,
-#             object_map: Dict | None = None, objects: List[IndexNode] | None = None,
-#             verbose: bool = False
-#     ) -> None:
-#         super().__init__(callback_manager, object_map, objects, verbose)
-#         self.retrievers = retrievers
-
-#     def _retrieve(self, query_bundle: QueryBundle) -> List[NodeWithScore]:
-#         list_nodes = []
-#         for retriever in self.retrievers:
-#             list_nodes.extend(retriever.retrieve(query_bundle))
-#         return list_nodes
-
-
 class LocalRetriever:
     def __init__(
         self,
-        setting: RetrieverSettings | None = None,
+        setting: RAGSettings | None = None,
         host: str = "host.docker.internal"
     ):
         super().__init__()
-        self._setting = setting or RetrieverSettings()
+        self._setting = setting or RAGSettings()
         self._host = host
 
     def get_retrievers(
@@ -90,26 +72,26 @@ class LocalRetriever:
         # VECTOR INDEX RETRIEVER
         vector_retriever = VectorIndexRetriever(
             index=vector_index,
-            similarity_top_k=self._setting.similarity_top_k,
+            similarity_top_k=self._setting.retriever.similarity_top_k,
             embed_model=Settings.embed_model,
             verbose=True
         )
 
         bm25_retriever = BM25Retriever.from_defaults(
             index=vector_index,
-            similarity_top_k=self._setting.similarity_top_k,
+            similarity_top_k=self._setting.retriever.similarity_top_k,
             verbose=True
         )
 
         # FUSION RETRIEVER
         fusion_retriever = NewQueryFusionRetriever(
             retrievers=[bm25_retriever, vector_retriever],
-            retriever_weights=self._setting.retriever_weights,
+            retriever_weights=self._setting.retriever.retriever_weights,
             llm=Settings.llm,
             query_gen_prompt=get_query_gen_prompt(language),
-            similarity_top_k=self._setting.similarity_top_k,
-            num_queries=self._setting.num_queries,
-            mode=self._setting.fusion_mode,
+            similarity_top_k=self._setting.retriever.similarity_top_k,
+            num_queries=self._setting.retriever.num_queries,
+            mode=self._setting.retriever.fusion_mode,
             verbose=True
         )
 

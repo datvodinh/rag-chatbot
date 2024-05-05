@@ -1,13 +1,10 @@
 from llama_index.llms.ollama import Ollama
 from llama_index.llms.openai import OpenAI
-from rag_chatbot.setting import OllamaSettings, LLMSettings
+from rag_chatbot.setting import RAGSettings
 from dotenv import load_dotenv
 import requests
 
 load_dotenv()
-
-llm_settings = LLMSettings()
-ollama_settings = OllamaSettings()
 
 
 class LocalRAGModel:
@@ -18,46 +15,49 @@ class LocalRAGModel:
     def set(
         model_name: str = "llama3:8b-instruct-q8_0",
         system_prompt: str | None = None,
-        host: str = "host.docker.internal"
+        host: str = "host.docker.internal",
+        setting: RAGSettings | None = None
     ):
-
+        setting = setting or RAGSettings()
         if model_name in ["gpt-3.5-turbo", "gpt-4"]:
             return OpenAI(
                 model=model_name,
-                temperature=llm_settings.temperature
+                temperature=setting.ollama.temperature
             )
         else:
             settings_kwargs = {
-                "tfs_z": ollama_settings.tfs_z,
-                "top_k": ollama_settings.top_k,
-                "top_p": ollama_settings.top_p,
-                "repeat_last_n": ollama_settings.repeat_last_n,
-                "repeat_penalty": ollama_settings.repeat_penalty,
+                "tfs_z": setting.ollama.tfs_z,
+                "top_k": setting.ollama.top_k,
+                "top_p": setting.ollama.top_p,
+                "repeat_last_n": setting.ollama.repeat_last_n,
+                "repeat_penalty": setting.ollama.repeat_penalty,
             }
             return Ollama(
                 model=model_name,
                 system_prompt=system_prompt,
-                base_url=f"http://{host}:{ollama_settings.port}",
-                temperature=llm_settings.temperature,
-                context_window=llm_settings.context_window,
-                request_timeout=ollama_settings.request_timeout,
+                base_url=f"http://{host}:{setting.ollama.port}",
+                temperature=setting.ollama.temperature,
+                context_window=setting.ollama.context_window,
+                request_timeout=setting.ollama.request_timeout,
                 additional_kwargs=settings_kwargs
             )
 
     @staticmethod
     def pull(host: str, model_name: str):
+        setting = RAGSettings()
         payload = {
             "name": model_name
         }
         return requests.post(
-            f"http://{host}:{ollama_settings.port}/api/pull",
+            f"http://{host}:{setting.ollama.port}/api/pull",
             json=payload, stream=True
         )
 
     @staticmethod
     def check_model_exist(host: str, model_name: str) -> bool:
+        setting = RAGSettings()
         data = requests.get(
-            f"http://{host}:{ollama_settings.port}/api/tags"
+            f"http://{host}:{setting.ollama.port}/api/tags"
         ).json()
         list_model = [d["name"] for d in data["models"]]
         if model_name in list_model:

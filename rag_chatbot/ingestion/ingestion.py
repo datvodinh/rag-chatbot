@@ -1,7 +1,3 @@
-from llama_index.core.extractors import (
-    SummaryExtractor,
-    KeywordExtractor,
-)
 import re
 from llama_index.core import SimpleDirectoryReader, Settings
 from llama_index.core.schema import BaseNode
@@ -9,13 +5,14 @@ from llama_index.core.node_parser import SentenceSplitter
 from llama_index.core.ingestion import IngestionPipeline
 from dotenv import load_dotenv
 from typing import List
-from ..setting import IngestionSettings
+from ..setting import RAGSettings
+
 load_dotenv()
 
 
 class LocalDataIngestion:
-    def __init__(self, setting: IngestionSettings | None = None) -> None:
-        self._setting = setting or IngestionSettings()
+    def __init__(self, setting: RAGSettings | None = None) -> None:
+        self._setting = setting or RAGSettings()
 
     def get_nodes_from_file(
         self,
@@ -29,10 +26,10 @@ class LocalDataIngestion:
         ).load_data(show_progress=True)
 
         splitter = SentenceSplitter.from_defaults(
-            chunk_size=self._setting.chunk_size,
-            chunk_overlap=self._setting.chunk_overlap,
-            paragraph_separator=self._setting.paragraph_sep,
-            secondary_chunking_regex=self._setting.chunking_regex
+            chunk_size=self._setting.ingestion.chunk_size,
+            chunk_overlap=self._setting.ingestion.chunk_overlap,
+            paragraph_separator=self._setting.ingestion.paragraph_sep,
+            secondary_chunking_regex=self._setting.ingestion.chunking_regex
         )
 
         for doc in documents:
@@ -51,13 +48,11 @@ class LocalDataIngestion:
         pipeline = IngestionPipeline(
             transformations=[
                 splitter,
-                # SummaryExtractor(summaries=["self"]),
-                # KeywordExtractor(keywords=10),
                 Settings.embed_model
             ]
         )
         return pipeline.run(
             documents=documents,
             show_progress=True,
-            num_workers=self._setting.num_workers
+            num_workers=self._setting.ingestion.num_workers
         )

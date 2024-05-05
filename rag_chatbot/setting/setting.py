@@ -27,14 +27,14 @@ class OllamaSettings(BaseModel):
     port: int = Field(
         default=11434, description="Port number"
     )
-
-
-class LLMSettings(BaseModel):
     context_window: int = Field(
         default=8000, description="Context window size"
     )
     temperature: float = Field(
         default=0.1, description="Temperature"
+    )
+    chat_token_limit: int = Field(
+        default=3000, description="Chat memory limit"
     )
 
 
@@ -56,9 +56,6 @@ class RetrieverSettings(BaseModel):
     )
     fusion_mode: str = Field(
         default="dist_based_score", description="Fusion mode"
-    )
-    chat_token_limit: int = Field(
-        default=3000, description="Chat memory limit"
     )
 
 
@@ -102,3 +99,10 @@ class StorageSettings(BaseModel):
     port: int = Field(
         default=8000, description="Port number"
     )
+
+
+class RAGSettings(BaseModel):
+    ollama: OllamaSettings = OllamaSettings()
+    retriever: RetrieverSettings = RetrieverSettings()
+    ingestion: IngestionSettings = IngestionSettings()
+    storage: StorageSettings = StorageSettings()
