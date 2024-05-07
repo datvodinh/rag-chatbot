@@ -11,7 +11,7 @@ from llama_index.core.schema import IndexNode, QueryBundle
 from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.core import Settings, VectorStoreIndex
 from ..prompt import get_query_gen_prompt
-from ..setting import RAGSettings
+from ...setting import RAGSettings
 
 load_dotenv()
 

@@ -3,7 +3,7 @@ from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core import VectorStoreIndex, get_response_synthesizer
 from llama_index.core.postprocessor import SentenceTransformerRerank
 from ..prompt import get_qa_and_refine_prompt
-from ..setting import RAGSettings
+from ...setting import RAGSettings
 from .retriever import LocalRetriever
 
 load_dotenv()

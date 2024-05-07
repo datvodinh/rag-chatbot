@@ -1,6 +1,6 @@
 from llama_index.llms.ollama import Ollama
 from llama_index.llms.openai import OpenAI
-from rag_chatbot.setting import RAGSettings
+from ...setting import RAGSettings
 from dotenv import load_dotenv
 import requests
 

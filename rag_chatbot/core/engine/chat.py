@@ -3,7 +3,7 @@ from llama_index.core.chat_engine import CondensePlusContextChatEngine
 from llama_index.core.memory import ChatMemoryBuffer
 from llama_index.core.postprocessor import SentenceTransformerRerank
 from rag_chatbot.prompt import get_system_prompt
-from ..setting import RAGSettings
+from ...setting import RAGSettings
 from .retriever import LocalRetriever
 
 

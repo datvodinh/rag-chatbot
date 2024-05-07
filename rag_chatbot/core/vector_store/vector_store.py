@@ -1,6 +1,6 @@
 from llama_index.core import VectorStoreIndex
 from dotenv import load_dotenv
-from ..setting import RAGSettings
+from ...setting import RAGSettings
 
 load_dotenv()
 
