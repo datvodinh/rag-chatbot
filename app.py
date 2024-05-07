@@ -113,12 +113,6 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                         state = not state
                         return gr.update(visible=state), state
 
-    with gr.Tab("Output"):
-        with gr.Row(variant="panel"):
-            log = gr.Code(label="", language="markdown", interactive=False, lines=30)
-            # log = gr.TextArea(interactive=False, lines=30, max_lines=30, show_copy_button=True)
-        demo.load(logger.read_logs, None, log, every=1, show_progress="hidden", scroll_to_output=True)
-
     with gr.Tab("Setting"):
         with gr.Row(variant='panel', equal_height=False):
             with gr.Column():
@@ -130,6 +124,12 @@ with gr.Blocks(theme=gr.themes.Soft(primary_hue="slate"), js=js_func) as demo:
                     max_lines=50
                 )
                 sys_prompt_btn = gr.Button(value="Set System Prompt")
+
+    with gr.Tab("Output"):
+        with gr.Row(variant="panel"):
+            log = gr.Code(label="", language="markdown", interactive=False, lines=30)
+            # log = gr.TextArea(interactive=False, lines=30, max_lines=30, show_copy_button=True)
+        demo.load(logger.read_logs, None, log, every=1, show_progress="hidden", scroll_to_output=True)
 
     @message.submit(inputs=[model, message, chatbot, chat_mode], outputs=[message, chatbot, status])
     def get_respone(model, message, chatbot, mode, progress=gr.Progress(track_tqdm=True)):
