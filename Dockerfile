@@ -7,4 +7,4 @@ RUN pip install .
 
 EXPOSE 7860
 
-CMD ["python","app.py"]
+CMD ["python", "-m", "rag_chatbot", "--host", "localhost"]

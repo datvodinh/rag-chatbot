@@ -1,6 +1,7 @@
 import asyncio
 import threading
 import os
+import socket
 
 
 def run_ollama_server():
@@ -40,3 +41,12 @@ def run_ollama_server():
     # Start ollama serve in a separate thread so the cell won't block execution
     thread = threading.Thread(target=run_async_in_thread, args=(new_loop, start_ollama_serve()))
     thread.start()
+
+
+def is_port_open(port):
+    with socket.socket(socket.AF_INET, socket.SOCK_STREAM) as s:
+        try:
+            s.connect(('localhost', port))
+            return True
+        except ConnectionRefusedError:
+            return False

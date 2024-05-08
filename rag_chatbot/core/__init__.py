@@ -2,7 +2,7 @@ from .embedding import LocalEmbedding
 from .model import LocalRAGModel
 from .ingestion import LocalDataIngestion
 from .vector_store import LocalVectorStore
-from .engine import LocalChatEngine, LocalCompactEngine
+from .engine import LocalChatEngine
 from .prompt import get_system_prompt
 
 __all__ = [
@@ -11,6 +11,5 @@ __all__ = [
     "LocalDataIngestion",
     "LocalVectorStore",
     "LocalChatEngine",
-    "LocalCompactEngine",
     "get_system_prompt"
 ]

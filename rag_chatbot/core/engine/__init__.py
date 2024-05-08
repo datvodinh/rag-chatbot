@@ -1,7 +1,5 @@
-from .chat import LocalChatEngine
-from .compact import LocalCompactEngine
+from .engine import LocalChatEngine
 
 __all__ = [
     "LocalChatEngine",
-    "LocalCompactEngine",
 ]

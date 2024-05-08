@@ -1,6 +1,5 @@
 from .core import (
     LocalChatEngine,
-    LocalCompactEngine,
     LocalDataIngestion,
     LocalRAGModel,
     LocalEmbedding,
@@ -8,37 +7,39 @@ from .core import (
     get_system_prompt
 )
 from llama_index.core import Settings
-from llama_index.core.llms import ChatMessage
+from llama_index.core.chat_engine.types import StreamingAgentChatResponse
 
 
 class LocalRAGPipeline:
     def __init__(self, host: str = "host.docker.internal") -> None:
         self._host = host
-        self._engine = {
-            "chat": LocalChatEngine(host=host),
-            "compact": LocalCompactEngine(host=host)
-        }
-        self._default_model = LocalRAGModel.set(host=host)
+        self._language = "eng"
+        self._mode = "chat"
+        self._model_name = ""
         self._system_prompt = get_system_prompt("eng", is_rag_prompt=False)
+        self._engine = LocalChatEngine(host=host)
+        self._default_model = LocalRAGModel.set(self._model_name, host=host)
         self._query_engine = None
         self._ingestion = LocalDataIngestion()
         self._vector_store = LocalVectorStore(host=host)
         self._nodes = []
-        self._language = "eng"
-        self._mode = "chat"
         Settings.llm = LocalRAGModel.set(host=host)
         Settings.embed_model = LocalEmbedding.set(host=host)
 
-    def set_model(self, model_name: str):
-        Settings.llm = LocalRAGModel.set(
-            model_name=model_name,
-            system_prompt=self._system_prompt,
-            host=self._host
-        )
-        self._default_model = Settings.llm
+    def get_model_name(self):
+        return self._model_name
+
+    def set_model_name(self, model_name: str):
+        self._model_name = model_name
+
+    def get_language(self):
+        return self._language
 
     def set_language(self, language: str):
         self._language = language
+
+    def get_mode(self):
+        return self._mode
 
     def set_mode(self, mode: str):
         self._mode = mode
@@ -48,17 +49,23 @@ class LocalRAGPipeline:
 
     def set_system_prompt(
         self,
-        system_prompt: str | None = None,
-        language: str | None = None,
-        is_rag_prompt: bool = False
+        system_prompt: str | None = None
     ):
         self._system_prompt = system_prompt or get_system_prompt(
-            language=language or self._language,
-            is_rag_prompt=is_rag_prompt
+            language=self._language,
+            is_rag_prompt=self.check_nodes_exist()
         )
 
+    def set_model(self):
+        Settings.llm = LocalRAGModel.set(
+            model_name=self._model_name,
+            system_prompt=self._system_prompt,
+            host=self._host
+        )
+        self._default_model = Settings.llm
+
     def reset_engine(self):
-        self._query_engine = None
+        self._query_engine = self._engine.set_engine(self._default_model, self._system_prompt)
 
     def check_nodes_exist(self):
         return len(self._nodes) > 0
@@ -104,44 +111,22 @@ class LocalRAGPipeline:
 
     def set_chat_mode(
         self,
-        model: str,
-        language: str,
-        mode: str,
         system_prompt: str | None = None
     ):
-        self.set_language(language)
-        if self.check_nodes_exist():
-            self.set_system_prompt(system_prompt, language, is_rag_prompt=True)
-            self.set_model(model)
-            self.set_engine(mode)
-        else:
-            self.set_system_prompt(system_prompt, language, is_rag_prompt=False)
-            self.set_model(model)
+        self.set_language(self._language)
+        self.set_system_prompt(system_prompt)
+        self.set_model()
+        self.set_engine()
 
-    def set_engine(
-        self,
-        mode: str = "chat",
-    ):
-        self.set_mode(mode)
+    def set_engine(self):
+        self.set_mode(self._mode)
         index = self._vector_store.get_index(self._nodes)
-        self._query_engine = self._engine[mode].from_index(
-            llm=self._default_model, vector_index=index, language=self._language
+        self._query_engine = self._engine.set_engine(
+            llm=self._default_model,
+            system_prompt=self._system_prompt,
+            vector_index=index,
+            language=self._language
         )
 
-    def query(self, queries: str, mode):
-        if self._query_engine is not None:
-            if mode == "chat":
-                response = self._query_engine.stream_chat(queries)
-            else:
-                response = self._query_engine.query(queries)
-            for text in response.response_gen:
-                yield text
-        else:
-            response = self._default_model.stream_chat(
-                [
-                    ChatMessage(role="system", content=self._system_prompt),
-                    ChatMessage(role="user", content=queries)
-                ]
-            )
-            for r in response:
-                yield r.delta
+    def query(self, message: str) -> StreamingAgentChatResponse:
+        return self._query_engine.stream_chat(message)

@@ -97,7 +97,7 @@ source ./scripts/run.sh
 or
 
 ```bash
-python app.py --host localhost
+python -m rag_chatbot --host localhost
 ```
 
 - Using Ngrok

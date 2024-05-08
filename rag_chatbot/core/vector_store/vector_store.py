@@ -16,5 +16,7 @@ class LocalVectorStore:
         self._setting = setting or RAGSettings()
 
     def get_index(self, nodes):
+        if len(nodes) == 0:
+            return None
         index = VectorStoreIndex(nodes=nodes)
         return index
