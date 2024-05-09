@@ -39,13 +39,12 @@ class LocalChatbotUI:
         else:
             console = sys.stdout
             sys.stdout = self._logger
-            user_mess = message
-            all_text = []
-            response = self._pipeline.query(chat_mode, user_mess, chatbot)
+            answer = []
+            response = self._pipeline.query(chat_mode, message, chatbot)
             for text in response.response_gen:
-                all_text.append(text)
-                yield "", chatbot + [[user_mess, "".join(all_text)]], "Answering!"
-            yield "", chatbot + [[user_mess, "".join(all_text)]], "Completed!"
+                answer.append(text)
+                yield "", chatbot + [[message, "".join(answer)]], "Answering!"
+            yield "", chatbot + [[message, "".join(answer)]], "Completed!"
             sys.stdout = console
 
     def _get_confirm_pull_model(self, model: str):
@@ -159,7 +158,7 @@ class LocalChatbotUI:
                                 interactive=True
                             )
                             model = gr.Dropdown(
-                                label="Enter model or choose below",
+                                label="Choose Model:",
                                 choices=[
                                     "llama3:8b-instruct-q8_0",
                                     "starling-lm:7b-beta-q8_0",
@@ -199,7 +198,8 @@ class LocalChatbotUI:
                                 value="chat",
                                 min_width=50,
                                 show_label=False,
-                                interactive=True
+                                interactive=True,
+                                allow_custom_value=False
                             )
                             message = gr.Textbox(placeholder="Enter you message:", show_label=False, scale=6, lines=1)
                             submit_btn = gr.Button(value="Submit", min_width=20, visible=True, elem_classes=["btn"])
@@ -240,7 +240,7 @@ class LocalChatbotUI:
                                   ).then(self._change_model, inputs=[model], outputs=[status])
             submit_btn.click(
                 self._get_respone,
-                inputs=[message, chatbot],
+                inputs=[chat_mode, message, chatbot],
                 outputs=[message, chatbot, status]
             )
             message.submit(
