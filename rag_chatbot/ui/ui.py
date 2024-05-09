@@ -25,6 +25,7 @@ class LocalChatbotUI:
 
     def _get_respone(
         self,
+        chat_mode: str,
         message: str,
         chatbot: list[list[str, str]],
         progress=gr.Progress(track_tqdm=True)
@@ -40,7 +41,7 @@ class LocalChatbotUI:
             sys.stdout = self._logger
             user_mess = message
             all_text = []
-            response = self._pipeline.query(user_mess)
+            response = self._pipeline.query(chat_mode, user_mess, chatbot)
             for text in response.response_gen:
                 all_text.append(text)
                 yield "", chatbot + [[user_mess, "".join(all_text)]], "Answering!"
@@ -111,11 +112,6 @@ class LocalChatbotUI:
         self._pipeline.set_chat_mode()
         gr.Info(f"Change language to {language}")
 
-    def _change_chat_mode(self, mode: str):
-        self._pipeline.set_chat_mode(mode)
-        gr.Info(f"Change chat mode to {mode}")
-        return "Changing mode!"
-
     def _undo_chat(self, history: list[list[str, str]]):
         if len(history) > 0:
             history.pop(-1)
@@ -124,10 +120,20 @@ class LocalChatbotUI:
 
     def _reset_chat(self):
         self._pipeline.reset_conversation()
+        gr.Info("Reset chat!")
         return "", [], None, "Ready!"
+
+    def _clear_chat(self):
+        self._pipeline.clear_conversation()
+        gr.Info("Clear chat!")
+        return "", [], "Ready!"
 
     def _show_hide_setting(self, state):
         state = not state
+        if state:
+            gr.Info("Show Setting!")
+        else:
+            gr.Info("Hide Setting!")
         return gr.update(visible=state), state
 
     def build(self):
@@ -146,12 +152,6 @@ class LocalChatbotUI:
                                 value="Ready!",
                                 interactive=False
                             )
-                            # chat_mode = gr.Radio(
-                            #     label="Mode",
-                            #     choices=["chat", "compact"],
-                            #     value="compact",
-                            #     interactive=True
-                            # ) # TODO
                             language = gr.Radio(
                                 label="Language",
                                 choices=["vi", "eng"],
@@ -194,7 +194,14 @@ class LocalChatbotUI:
                             avatar_images=self._avatar_images
                         )
                         with gr.Row(variant='panel'):
-                            message = gr.Textbox(placeholder="Enter you message:", show_label=False, scale=10, lines=1)
+                            chat_mode = gr.Dropdown(
+                                choices=["chat", "QA"],
+                                value="chat",
+                                min_width=50,
+                                show_label=False,
+                                interactive=True
+                            )
+                            message = gr.Textbox(placeholder="Enter you message:", show_label=False, scale=6, lines=1)
                             submit_btn = gr.Button(value="Submit", min_width=20, visible=True, elem_classes=["btn"])
                         with gr.Row(variant='panel'):
                             ui_btn = gr.Button(value="Show/Hide Setting", min_width=20)
@@ -223,7 +230,7 @@ class LocalChatbotUI:
                         show_progress="hidden", scroll_to_output=True
                     )
 
-            clear_btn.click(lambda: ("", [], "Ready!"), outputs=[message, chatbot, status])
+            clear_btn.click(self._clear_chat, outputs=[message, chatbot, status])
             cancel_btn.click(lambda: (gr.update(visible=False), gr.update(visible=False)), outputs=[pull_btn, cancel_btn])
             cancel_btn.click(lambda: None, outputs=[model])
             undo_btn.click(self._undo_chat, inputs=[chatbot], outputs=[chatbot])
@@ -238,14 +245,11 @@ class LocalChatbotUI:
             )
             message.submit(
                 self._get_respone,
-                inputs=[message, chatbot],
+                inputs=[chat_mode, message, chatbot],
                 outputs=[message, chatbot, status]
             )
             language.change(self._change_language, inputs=[language])
             model.change(self._get_confirm_pull_model, inputs=[model], outputs=[pull_btn, cancel_btn, status])
-            # chat_mode.change(self._change_chat_mode, inputs=[chat_mode], outputs=[status]
-            #                  ).then(self._processing_document, inputs=[documents], outputs=[status]
-            #                         ).then(lambda: ("", [], "Ready!"), outputs=[message, chatbot, status])
             documents.change(self._processing_document, inputs=[documents], outputs=[system_prompt, status])
 
             sys_prompt_btn.click(self._change_system_prompt, inputs=[system_prompt])

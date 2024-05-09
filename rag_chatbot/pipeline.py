@@ -8,13 +8,13 @@ from .core import (
 )
 from llama_index.core import Settings
 from llama_index.core.chat_engine.types import StreamingAgentChatResponse
+from llama_index.core.prompts import ChatMessage, MessageRole
 
 
 class LocalRAGPipeline:
     def __init__(self, host: str = "host.docker.internal") -> None:
         self._host = host
         self._language = "eng"
-        self._mode = "chat"
         self._model_name = ""
         self._system_prompt = get_system_prompt("eng", is_rag_prompt=False)
         self._engine = LocalChatEngine(host=host)
@@ -38,12 +38,6 @@ class LocalRAGPipeline:
     def set_language(self, language: str):
         self._language = language
 
-    def get_mode(self):
-        return self._mode
-
-    def set_mode(self, mode: str):
-        self._mode = mode
-
     def get_system_prompt(self):
         return self._system_prompt
 
@@ -65,7 +59,11 @@ class LocalRAGPipeline:
         self._default_model = Settings.llm
 
     def reset_engine(self):
-        self._query_engine = self._engine.set_engine(self._default_model, self._system_prompt)
+        self._query_engine = self._engine.set_engine(
+            llm=self._default_model,
+            nodes=self._nodes,
+            language=self._language
+        )
 
     def check_nodes_exist(self):
         return len(self._nodes) > 0
@@ -73,9 +71,12 @@ class LocalRAGPipeline:
     def reset_nodes(self):
         self._nodes = []
 
+    def clear_conversation(self):
+        self._query_engine.reset()
+
     def reset_conversation(self):
-        self.reset_engine()
         self.reset_nodes()
+        self.reset_engine()
         self.set_system_prompt(
             get_system_prompt(language=self._language, is_rag_prompt=False)
         )
@@ -119,12 +120,28 @@ class LocalRAGPipeline:
         self.set_engine()
 
     def set_engine(self):
-        self.set_mode(self._mode)
         self._query_engine = self._engine.set_engine(
             llm=self._default_model,
             nodes=self._nodes,
             language=self._language
         )
 
-    def query(self, message: str) -> StreamingAgentChatResponse:
-        return self._query_engine.stream_chat(message)
+    def get_history(self, chatbot: list[list[str]]):
+        history = []
+        for chat in chatbot:
+            history.append(ChatMessage(role=MessageRole.USER, message=chat[0]))
+            history.append(ChatMessage(role=MessageRole.ASSISTANT, message=chat[1]))
+        return history
+
+    def query(
+        self,
+        mode: str,
+        message: str,
+        chatbot: list[list[str]]
+    ) -> StreamingAgentChatResponse:
+        if mode == "chat":
+            history = self.get_history(chatbot)
+            return self._query_engine.stream_chat(message, history)
+        else:
+            self._query_engine.reset()
+            return self._query_engine.stream_chat(message)

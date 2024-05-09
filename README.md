@@ -21,6 +21,11 @@
 - Chat with multiples languages (Coming soon).
 - Simple UI with `Gradio`.
 
+# ⭐️ Mode
+
+- `Chat`: chat with history.
+- `QA`: chat without history.
+
 # 💻 Setup
 
 ## 1. Kaggle (Recommended)
