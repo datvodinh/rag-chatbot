@@ -120,11 +120,9 @@ class LocalRAGPipeline:
 
     def set_engine(self):
         self.set_mode(self._mode)
-        index = self._vector_store.get_index(self._nodes)
         self._query_engine = self._engine.set_engine(
             llm=self._default_model,
-            system_prompt=self._system_prompt,
-            vector_index=index,
+            nodes=self._nodes,
             language=self._language
         )
 

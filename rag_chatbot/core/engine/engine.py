@@ -1,8 +1,10 @@
-from llama_index.core import VectorStoreIndex
 from llama_index.core.chat_engine import CondensePlusContextChatEngine, SimpleChatEngine
 from llama_index.core.memory import ChatMemoryBuffer
-from ...setting import RAGSettings
+from llama_index.core.llms.llm import LLM
+from llama_index.core.schema import BaseNode
+from typing import List
 from .retriever import LocalRetriever
+from ...setting import RAGSettings
 
 
 class LocalChatEngine:
@@ -18,17 +20,15 @@ class LocalChatEngine:
 
     def set_engine(
         self,
-        llm,
-        system_prompt: str,
-        vector_index: VectorStoreIndex | None = None,
+        llm: LLM,
+        nodes: List[BaseNode],
         language: str = "eng",
     ) -> CondensePlusContextChatEngine | SimpleChatEngine:
 
         # Normal chat engine
-        if vector_index is None:
+        if len(nodes) == 0:
             return SimpleChatEngine.from_defaults(
                 llm=llm,
-                system_prompt=system_prompt,
                 memory=ChatMemoryBuffer(
                     token_limit=self._setting.ollama.chat_token_limit
                 )
@@ -36,13 +36,13 @@ class LocalChatEngine:
 
         # Chat engine with documents
         retriever = self._retriever.get_retrievers(
-            vector_index=vector_index,
-            language=language
+            llm=llm,
+            language=language,
+            nodes=nodes
         )
         return CondensePlusContextChatEngine.from_defaults(
             retriever=retriever,
             llm=llm,
-            system_prompt=system_prompt,
             memory=ChatMemoryBuffer(
                 token_limit=self._setting.ollama.chat_token_limit
             )

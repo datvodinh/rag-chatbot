@@ -7,7 +7,8 @@ from llama_index.core.retrievers import (
     VectorIndexRetriever
 )
 from llama_index.core.retrievers.fusion_retriever import FUSION_MODES
-from llama_index.core.schema import IndexNode, QueryBundle
+from llama_index.core.schema import IndexNode, QueryBundle, BaseNode
+from llama_index.core.llms.llm import LLM
 from llama_index.retrievers.bm25 import BM25Retriever
 from llama_index.core import Settings, VectorStoreIndex
 from ..prompt import get_query_gen_prompt
@@ -64,8 +65,9 @@ class LocalRetriever:
         self._setting = setting or RAGSettings()
         self._host = host
 
-    def get_retrievers(
+    def _get_fusion_retriever(
         self,
+        llm: LLM,
         vector_index: VectorStoreIndex,
         language: str,
     ):
@@ -87,7 +89,7 @@ class LocalRetriever:
         fusion_retriever = NewQueryFusionRetriever(
             retrievers=[bm25_retriever, vector_retriever],
             retriever_weights=self._setting.retriever.retriever_weights,
-            llm=Settings.llm,
+            llm=llm,
             query_gen_prompt=get_query_gen_prompt(language),
             similarity_top_k=self._setting.retriever.top_k_rerank,
             num_queries=self._setting.retriever.num_queries,
@@ -96,3 +98,21 @@ class LocalRetriever:
         )
 
         return fusion_retriever
+
+    def get_retrievers(
+        self,
+        llm: LLM,
+        language: str,
+        nodes: List[BaseNode],
+    ):
+        vector_index = VectorStoreIndex(nodes=nodes)
+        if len(nodes) > self._setting.retriever.top_k_rerank:
+            retriever = self._get_fusion_retriever(llm, vector_index, language)
+        else:
+            retriever = VectorIndexRetriever(
+                index=vector_index,
+                similarity_top_k=self._setting.retriever.top_k_rerank,
+                verbose=True
+            )
+
+        return retriever
