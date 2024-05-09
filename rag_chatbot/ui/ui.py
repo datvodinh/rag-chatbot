@@ -130,10 +130,8 @@ class LocalChatbotUI:
     def _show_hide_setting(self, state):
         state = not state
         if state:
-            gr.Info("Show Setting!")
-        else:
-            gr.Info("Hide Setting!")
-        return gr.update(visible=state), state
+            return "Hide Setting", gr.update(visible=state), state
+        return "Show Setting", gr.update(visible=state), state
 
     def build(self):
         with gr.Blocks(
@@ -204,7 +202,7 @@ class LocalChatbotUI:
                             message = gr.Textbox(placeholder="Enter you message:", show_label=False, scale=6, lines=1)
                             submit_btn = gr.Button(value="Submit", min_width=20, visible=True, elem_classes=["btn"])
                         with gr.Row(variant='panel'):
-                            ui_btn = gr.Button(value="Show/Hide Setting", min_width=20)
+                            ui_btn = gr.Button(value="Hide Setting", min_width=20)
                             undo_btn = gr.Button(value="Undo", min_width=20)
                             clear_btn = gr.Button(value="Clear", min_width=20)
                             reset_btn = gr.Button(value="Reset", min_width=20)
@@ -230,14 +228,27 @@ class LocalChatbotUI:
                         show_progress="hidden", scroll_to_output=True
                     )
 
-            clear_btn.click(self._clear_chat, outputs=[message, chatbot, status])
-            cancel_btn.click(lambda: (gr.update(visible=False), gr.update(visible=False)), outputs=[pull_btn, cancel_btn])
-            cancel_btn.click(lambda: None, outputs=[model])
-            undo_btn.click(self._undo_chat, inputs=[chatbot], outputs=[chatbot])
-            reset_btn.click(self._reset_chat, outputs=[message, chatbot, documents, status])
-            pull_btn.click(lambda: (gr.update(visible=False), gr.update(visible=False)), outputs=[pull_btn, cancel_btn]
-                           ).then(self._pull_model, inputs=[model], outputs=[message, chatbot, status, model]
-                                  ).then(self._change_model, inputs=[model], outputs=[status])
+            clear_btn.click(
+                self._clear_chat,
+                outputs=[message, chatbot, status]
+            )
+            cancel_btn.click(
+                lambda: (gr.update(visible=False), gr.update(visible=False), None),
+                outputs=[pull_btn, cancel_btn, model]
+            )
+            undo_btn.click(
+                self._undo_chat,
+                inputs=[chatbot],
+                outputs=[chatbot]
+            )
+            reset_btn.click(
+                self._reset_chat,
+                outputs=[message, chatbot, documents, status]
+            )
+            pull_btn.click(
+                lambda: (gr.update(visible=False), gr.update(visible=False)), outputs=[pull_btn, cancel_btn]
+            ).then(self._pull_model, inputs=[model], outputs=[message, chatbot, status, model]
+                   ).then(self._change_model, inputs=[model], outputs=[status])
             submit_btn.click(
                 self._get_respone,
                 inputs=[chat_mode, message, chatbot],
@@ -248,11 +259,29 @@ class LocalChatbotUI:
                 inputs=[chat_mode, message, chatbot],
                 outputs=[message, chatbot, status]
             )
-            language.change(self._change_language, inputs=[language])
-            model.change(self._get_confirm_pull_model, inputs=[model], outputs=[pull_btn, cancel_btn, status])
-            documents.change(self._processing_document, inputs=[documents], outputs=[system_prompt, status])
+            language.change(
+                self._change_language,
+                inputs=[language]
+            )
+            model.change(
+                self._get_confirm_pull_model,
+                inputs=[model],
+                outputs=[pull_btn, cancel_btn, status]
+            )
+            documents.change(
+                self._processing_document,
+                inputs=[documents],
+                outputs=[system_prompt, status]
+            )
 
-            sys_prompt_btn.click(self._change_system_prompt, inputs=[system_prompt])
-            ui_btn.click(self._show_hide_setting, inputs=[sidebar_state], outputs=[setting, sidebar_state])
+            sys_prompt_btn.click(
+                self._change_system_prompt,
+                inputs=[system_prompt]
+            )
+            ui_btn.click(
+                self._show_hide_setting,
+                inputs=[sidebar_state],
+                outputs=[ui_btn, setting, sidebar_state]
+            )
 
         return demo
