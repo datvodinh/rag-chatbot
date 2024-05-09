@@ -22,7 +22,6 @@ class LocalRAGPipeline:
         self._query_engine = None
         self._ingestion = LocalDataIngestion()
         self._vector_store = LocalVectorStore(host=host)
-        self._nodes = []
         Settings.llm = LocalRAGModel.set(host=host)
         Settings.embed_model = LocalEmbedding.set(host=host)
 
@@ -47,7 +46,7 @@ class LocalRAGPipeline:
     ):
         self._system_prompt = system_prompt or get_system_prompt(
             language=self._language,
-            is_rag_prompt=self.check_nodes_exist()
+            is_rag_prompt=self._ingestion.check_nodes_exist()
         )
 
     def set_model(self):
@@ -61,28 +60,21 @@ class LocalRAGPipeline:
     def reset_engine(self):
         self._query_engine = self._engine.set_engine(
             llm=self._default_model,
-            nodes=self._nodes,
+            nodes=[],
             language=self._language
         )
 
-    def check_nodes_exist(self):
-        return len(self._nodes) > 0
-
-    def reset_nodes(self):
-        self._nodes = []
+    def reset_documents(self):
+        self._ingestion.reset()
 
     def clear_conversation(self):
         self._query_engine.reset()
 
     def reset_conversation(self):
-        self.reset_nodes()
         self.reset_engine()
         self.set_system_prompt(
             get_system_prompt(language=self._language, is_rag_prompt=False)
         )
-
-    def store_nodes(self, nodes):
-        self._nodes.extend(nodes)
 
     def set_embed_model(self, model_name: str):
         Settings.embed_model = LocalEmbedding.set(model_name, self._host)
@@ -99,16 +91,11 @@ class LocalRAGPipeline:
     def check_exist_embed(self, model_name: str) -> bool:
         return LocalEmbedding.check_model_exist(self._host, model_name)
 
-    def get_nodes_from_file(
+    def store_nodes(
         self,
-        input_dir: str = None,
         input_files: list[str] = None
     ) -> None:
-        nodes = self._ingestion.get_nodes_from_file(
-            input_dir=input_dir,
-            input_files=input_files
-        )
-        return nodes
+        self._ingestion.store_nodes(input_files=input_files)
 
     def set_chat_mode(
         self,
@@ -122,7 +109,7 @@ class LocalRAGPipeline:
     def set_engine(self):
         self._query_engine = self._engine.set_engine(
             llm=self._default_model,
-            nodes=self._nodes,
+            nodes=self._ingestion.get_ingested_nodes(),
             language=self._language
         )
 

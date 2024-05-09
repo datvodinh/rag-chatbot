@@ -78,23 +78,36 @@ class LocalChatbotUI:
             gr.Info(f"Change model to {model}!")
         return "Ready!"
 
+    def _upload_document(self, document: list[str], list_files: list[str]):
+        if document in [None, []]:
+            return list_files
+        return document + list_files, []
+
+    def _reset_document(self):
+        self._pipeline.reset_documents()
+        gr.Info("Reset all documents!")
+        return [], gr.update(visible=False), gr.update(visible=False)
+
+    def _show_document_btn(self, document: list[str]):
+        if document in [None, []]:
+            return gr.update(visible=False), gr.update(visible=False)
+        return gr.update(visible=True), gr.update(visible=True)
+
     def _processing_document(
         self,
         document: list[str],
         progress=gr.Progress(track_tqdm=True)
     ):
         if document not in [None, []]:
-            gr.Info("Processing Document!")
             if self._host == "host.docker.internal":
+                input_files = []
                 for file_path in document:
-                    shutil.move(src=file_path, dst=os.path.join(
-                        self._data_dir, file_path.split("/")[-1]
-                    ))
-                nodes = self._pipeline.get_nodes_from_file(data_dir=self._data_dir)
+                    dest = os.path.join(self._data_dir, file_path.split("/")[-1])
+                    shutil.move(src=file_path, dst=dest)
+                    input_files.append(dest)
+                self._pipeline.store_nodes(input_files=input_files)
             else:
-                nodes = self._pipeline.get_nodes_from_file(input_files=document)
-            gr.Info("Indexing!")
-            self._pipeline.store_nodes(nodes)
+                self._pipeline.store_nodes(input_files=document)
             self._pipeline.set_chat_mode()
             gr.Info("Processing Completed!")
             return self._pipeline.get_system_prompt(), "Completed!"
@@ -180,6 +193,20 @@ class LocalChatbotUI:
                                 height=150,
                                 interactive=True
                             )
+                            with gr.Row():
+                                upload_doc_btn = gr.UploadButton(
+                                    label="Upload",
+                                    value=[],
+                                    file_types=[".txt", ".pdf", ".csv"],
+                                    file_count="multiple",
+                                    min_width=20,
+                                    visible=False
+                                )
+                                reset_doc_btn = gr.Button(
+                                    "Reset",
+                                    min_width=20,
+                                    visible=False
+                                )
 
                     with gr.Column(scale=30, variant="panel"):
                         chatbot = gr.Chatbot(
@@ -272,6 +299,10 @@ class LocalChatbotUI:
                 self._processing_document,
                 inputs=[documents],
                 outputs=[system_prompt, status]
+            ).then(
+                self._show_document_btn,
+                inputs=[documents],
+                outputs=[upload_doc_btn, reset_doc_btn]
             )
 
             sys_prompt_btn.click(
@@ -282,6 +313,15 @@ class LocalChatbotUI:
                 self._show_hide_setting,
                 inputs=[sidebar_state],
                 outputs=[ui_btn, setting, sidebar_state]
+            )
+            upload_doc_btn.upload(
+                self._upload_document,
+                inputs=[documents, upload_doc_btn],
+                outputs=[documents, upload_doc_btn]
+            )
+            reset_doc_btn.click(
+                self._reset_document,
+                outputs=[documents, upload_doc_btn, reset_doc_btn]
             )
 
         return demo
