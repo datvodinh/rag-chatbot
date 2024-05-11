@@ -171,6 +171,8 @@ class LocalChatbotUI:
                             model = gr.Dropdown(
                                 label="Choose Model:",
                                 choices=[
+                                    "llama3-chatqa:8b-v1.5-q8_0",
+                                    "llama3-chatqa:8b-v1.5-q6_K",
                                     "llama3:8b-instruct-q8_0",
                                     "starling-lm:7b-beta-q8_0",
                                     "mixtral:instruct",
@@ -242,7 +244,7 @@ class LocalChatbotUI:
                             label="System Prompt",
                             value=self._pipeline.get_system_prompt(),
                             interactive=True,
-                            lines=20,
+                            lines=10,
                             max_lines=50
                         )
                         sys_prompt_btn = gr.Button(value="Set System Prompt")
