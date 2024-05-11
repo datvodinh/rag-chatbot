@@ -19,6 +19,7 @@ load_dotenv()
 
 class TwoStageRetriever:
     def __init__(self) -> None:
+        # TODO
         pass
 
 
@@ -43,7 +44,7 @@ class LocalRetriever:
             similarity_top_k=self._setting.retriever.similarity_top_k,
             embed_model=Settings.embed_model,
             verbose=True
-        )
+        )  # TODO
 
     def _get_fusion_retriever(
         self,

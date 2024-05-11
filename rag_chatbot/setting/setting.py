@@ -3,6 +3,9 @@ from typing import List
 
 
 class OllamaSettings(BaseModel):
+    llm: str = Field(
+        default="llama3:8b-instruct-q8_0", description="LLM model"
+    )
     keep_alive: str = Field(
         default="1h", description="Keep alive time for the server"
     )

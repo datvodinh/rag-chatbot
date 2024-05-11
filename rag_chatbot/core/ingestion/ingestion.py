@@ -3,7 +3,7 @@ from llama_index.core import SimpleDirectoryReader, Settings
 from llama_index.core.schema import BaseNode
 from llama_index.core.node_parser import SentenceSplitter
 from dotenv import load_dotenv
-from typing import List
+from typing import Any, List
 from tqdm import tqdm
 from ...setting import RAGSettings
 
@@ -19,6 +19,8 @@ class LocalDataIngestion:
     def store_nodes(
         self,
         input_files: list[str],
+        embed_nodes: bool = True,
+        embed_model: Any | None = None
     ) -> List[BaseNode]:
         splitter = SentenceSplitter.from_defaults(
             chunk_size=self._setting.ingestion.chunk_size,
@@ -32,6 +34,8 @@ class LocalDataIngestion:
         ]
         return_nodes = []
         self._ingested_file = []
+        if embed_nodes:
+            Settings.embed_model = embed_model or Settings.embed_model
         for input_file in tqdm(input_files, desc="Ingesting data"):
             file_name = input_file.strip().split('/')[-1]
             self._ingested_file.append(file_name)
@@ -50,7 +54,8 @@ class LocalDataIngestion:
                     doc.excluded_llm_metadata_keys = excluded_keys
 
                 nodes = splitter(document)
-                nodes = Settings.embed_model(nodes)
+                if embed_nodes:
+                    nodes = Settings.embed_model(nodes)
                 self._node_store[file_name] = nodes
                 return_nodes.extend(nodes)
 
