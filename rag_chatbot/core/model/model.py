@@ -59,6 +59,8 @@ class LocalRAGModel:
         data = requests.get(
             f"http://{host}:{setting.ollama.port}/api/tags"
         ).json()
+        if data["models"] is None:
+            return False
         list_model = [d["name"] for d in data["models"]]
         if model_name in list_model:
             return True
