@@ -116,8 +116,9 @@ class LocalRAGPipeline:
     def get_history(self, chatbot: list[list[str]]):
         history = []
         for chat in chatbot:
-            history.append(ChatMessage(role=MessageRole.USER, content=chat[0]))
-            history.append(ChatMessage(role=MessageRole.ASSISTANT, content=chat[1]))
+            if chat[0]:
+                history.append(ChatMessage(role=MessageRole.USER, content=chat[0]))
+                history.append(ChatMessage(role=MessageRole.ASSISTANT, content=chat[1]))
         return history
 
     def query(

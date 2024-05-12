@@ -19,7 +19,7 @@ class DefaultElement:
     DEFAULT_HISTORY: ClassVar[list] = []
     DEFAULT_DOCUMENT: ClassVar[list] = []
 
-    HELLO_MESSAGE: str = "Hello ✋, How can I help you today?"
+    HELLO_MESSAGE: str = "Hi 👋, how can I help you today?"
     SET_MODEL_MESSAGE: str = "You need to choose LLM model 🤖 first!"
     EMPTY_MESSAGE: str = "You need to enter your message!"
     DEFAULT_STATUS: str = "Ready!"
@@ -42,7 +42,7 @@ class LLMResponse:
             time.sleep(0.01)
             yield (
                 DefaultElement.DEFAULT_MESSAGE,
-                [["", message[:i+1]]],
+                [[None, message[:i+1]]],
                 DefaultElement.DEFAULT_STATUS
             )
 
@@ -267,6 +267,10 @@ class LocalChatbotUI:
             state
         )
 
+    def _welcome(self):
+        for m in self._llm_response.welcome():
+            yield m
+
     def build(self):
         with gr.Blocks(
             theme=gr.themes.Soft(primary_hue="slate"),
@@ -490,6 +494,10 @@ class LocalChatbotUI:
             reset_doc_btn.click(
                 self._reset_document,
                 outputs=[documents, upload_doc_btn, reset_doc_btn]
+            )
+            demo.load(
+                self._welcome,
+                outputs=[message, chatbot, status]
             )
 
         return demo
