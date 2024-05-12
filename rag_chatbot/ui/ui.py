@@ -65,12 +65,12 @@ class LLMResponse:
         for text in response.response_gen:
             answer.append(text)
             yield (
-                {'text': DefaultElement.DEFAULT_MESSAGE},
+                DefaultElement.DEFAULT_MESSAGE,
                 history + [[message, "".join(answer)]],
                 DefaultElement.ANSWERING_STATUS
             )
         yield (
-            {'text': DefaultElement.DEFAULT_MESSAGE},
+            DefaultElement.DEFAULT_MESSAGE,
             history + [[message, "".join(answer)]],
             DefaultElement.COMPLETED_STATUS
         )
