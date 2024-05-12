@@ -22,6 +22,10 @@ class LocalDataIngestion:
         embed_nodes: bool = True,
         embed_model: Any | None = None
     ) -> List[BaseNode]:
+        return_nodes = []
+        self._ingested_file = []
+        if len(input_files) == 0:
+            return return_nodes
         splitter = SentenceSplitter.from_defaults(
             chunk_size=self._setting.ingestion.chunk_size,
             chunk_overlap=self._setting.ingestion.chunk_overlap,
@@ -32,8 +36,6 @@ class LocalDataIngestion:
             "doc_id", "file_path", "file_type",
             "file_size", "creation_date", "last_modified_date"
         ]
-        return_nodes = []
-        self._ingested_file = []
         if embed_nodes:
             Settings.embed_model = embed_model or Settings.embed_model
         for input_file in tqdm(input_files, desc="Ingesting data"):
@@ -53,12 +55,11 @@ class LocalDataIngestion:
                     doc.excluded_embed_metadata_keys = excluded_keys
                     doc.excluded_llm_metadata_keys = excluded_keys
 
-                nodes = splitter(document)
+                nodes = splitter(document, show_progress=True)
                 if embed_nodes:
-                    nodes = Settings.embed_model(nodes)
+                    nodes = Settings.embed_model(nodes, show_progress=True)
                 self._node_store[file_name] = nodes
                 return_nodes.extend(nodes)
-
         return return_nodes
 
     def reset(self):
