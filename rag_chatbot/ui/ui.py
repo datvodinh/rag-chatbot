@@ -42,7 +42,7 @@ class LLMResponse:
             time.sleep(0.01)
             yield (
                 DefaultElement.DEFAULT_MESSAGE,
-                [[None, message[:i+1]]],
+                [["", message[:i+1]]],
                 DefaultElement.DEFAULT_STATUS
             )
 
