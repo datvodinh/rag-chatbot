@@ -46,13 +46,13 @@ class RetrieverSettings(BaseModel):
         default=5, description="Number of generated queries"
     )
     similarity_top_k: int = Field(
-        default=10, description="Top k documents"
+        default=20, description="Top k documents"
     )
     retriever_weights: List[float] = Field(
         default=[0.4, 0.6], description="Weights for retriever"
     )
     top_k_rerank: int = Field(
-        default=3, description="Top k rerank"
+        default=6, description="Top k rerank"
     )
     rerank_llm: str = Field(
         default="BAAI/bge-reranker-large", description="Rerank LLM model"
@@ -67,16 +67,16 @@ class IngestionSettings(BaseModel):
         default="BAAI/bge-large-en-v1.5", description="Embedding LLM model"
     )
     embed_batch_size: int = Field(
-        default=4, description="Embedding batch size"
+        default=8, description="Embedding batch size"
     )
     cache_folder: str = Field(
         default="data/huggingface", description="Cache folder"
     )
     chunk_size: int = Field(
-        default=1024, description="Document chunk size"
+        default=512, description="Document chunk size"
     )
     chunk_overlap: int = Field(
-        default=128, description="Document chunk overlap"
+        default=32, description="Document chunk overlap"
     )
     chunking_regex: str = Field(
         default="[^,.;。？！]+[,.;。？！]?", description="Chunking regex"
