@@ -24,6 +24,8 @@
 
 # 💡 Idea (Experiment)
 
+![](./assets/rag-flow.svg)
+
 ![](./assets/retriever.svg)
 
 # 💻 Setup
