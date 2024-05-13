@@ -48,7 +48,7 @@ class LocalDataIngestion:
                     input_files=[input_file],
                     filename_as_id=True
                 ).load_data()
-
+                document = [doc for doc in document if doc.text.strip()]
                 for doc in document:
                     doc.metadata['file_name'] = file_name
                     doc.text = re.sub(r'\s+', ' ', doc.text.strip())
