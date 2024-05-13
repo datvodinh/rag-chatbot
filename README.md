@@ -5,6 +5,7 @@
 # 📖 Table of Contents
 
 - [`Feature`](#⭐️-features)
+- [`Idea`](#-idea)
 - [`Setup`](#💻-setup)
   - [`Kaggle`](#1-kaggle-recommended)
   - [`Local`](#2-local)
@@ -21,10 +22,9 @@
 - Chat with multiples languages (Coming soon).
 - Simple UI with `Gradio`.
 
-# ⭐️ Mode
+# 💡 Idea (Experiment)
 
-- `Chat`: chat with history.
-- `QA`: chat without history.
+![](./assets/retriever.svg)
 
 # 💻 Setup
 
@@ -120,6 +120,7 @@ source ./scripts/run.sh --ngrok
 - [ ] Knowledge Graph (for Structure Data).
 - [x] Better Document Processing.
 - [ ] MLX model.
+
 
 ## 🌟 Star History
 
