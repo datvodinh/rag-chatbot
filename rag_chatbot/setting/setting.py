@@ -52,7 +52,7 @@ class RetrieverSettings(BaseModel):
         default=[0.4, 0.6], description="Weights for retriever"
     )
     top_k_rerank: int = Field(
-        default=4, description="Top k rerank"
+        default=5, description="Top k rerank"
     )
     rerank_llm: str = Field(
         default="BAAI/bge-reranker-large", description="Rerank LLM model"
@@ -64,7 +64,7 @@ class RetrieverSettings(BaseModel):
 
 class IngestionSettings(BaseModel):
     embed_llm: str = Field(
-        default="BAAI/bge-base-en-v1.5", description="Embedding LLM model"
+        default="BAAI/bge-large-en-v1.5", description="Embedding LLM model"
     )
     embed_batch_size: int = Field(
         default=4, description="Embedding batch size"

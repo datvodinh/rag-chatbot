@@ -33,7 +33,7 @@ class LocalDataIngestion:
             secondary_chunking_regex=self._setting.ingestion.chunking_regex
         )
         excluded_keys = [
-            "doc_id", "file_path", "file_type",
+            "doc_id", "file_path", "file_type", "page_label", "file_name",
             "file_size", "creation_date", "last_modified_date"
         ]
         if embed_nodes:
