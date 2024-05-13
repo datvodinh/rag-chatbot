@@ -1,4 +1,4 @@
-# 🤖 Chat with multiple PDFs, using Ollama and LlamaIndex
+# 🤖 Chat with multiple PDFs locally
 
 ![alt text](assets/demo.png)
 
@@ -118,9 +118,8 @@ source ./scripts/run.sh --ngrok
 - [ ] Add evaluation.
 - [ ] Support better Embedding Model for Vietnamese and other languages.
 - [ ] Knowledge Graph (for Structure Data).
-- [ ] Better Document Processing.
+- [x] Better Document Processing.
 - [ ] MLX model.
-- [ ] Corrective RAG
 
 ## 🌟 Star History
 
