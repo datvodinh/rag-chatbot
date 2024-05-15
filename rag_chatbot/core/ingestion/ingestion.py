@@ -1,5 +1,6 @@
 import re
-from llama_index.core import SimpleDirectoryReader, Settings
+import fitz
+from llama_index.core import Document, Settings
 from llama_index.core.schema import BaseNode
 from llama_index.core.node_parser import SentenceSplitter
 from dotenv import load_dotenv
@@ -15,6 +16,17 @@ class LocalDataIngestion:
         self._setting = setting or RAGSettings()
         self._node_store = {}
         self._ingested_file = []
+
+    def _filter_text(self, text):
+        # Define the regex pattern.
+        pattern = r'[a-zA-Z0-9 `~!@#$%^&*()_\-+=\[\]{}|\\;:\'",.<>/?]+'
+        matches = re.findall(pattern, text)
+        # Join all matched substrings into a single string
+        filtered_text = ' '.join(matches)
+        # Normalize the text by removing extra whitespaces
+        normalized_text = re.sub(r'\s+', ' ', filtered_text.strip())
+
+        return normalized_text
 
     def store_nodes(
         self,
@@ -32,10 +44,6 @@ class LocalDataIngestion:
             paragraph_separator=self._setting.ingestion.paragraph_sep,
             secondary_chunking_regex=self._setting.ingestion.chunking_regex
         )
-        excluded_keys = [
-            "doc_id", "file_path", "file_type", "page_label", "file_name",
-            "file_size", "creation_date", "last_modified_date"
-        ]
         if embed_nodes:
             Settings.embed_model = embed_model or Settings.embed_model
         for input_file in tqdm(input_files, desc="Ingesting data"):
@@ -44,18 +52,20 @@ class LocalDataIngestion:
             if file_name in self._node_store:
                 return_nodes.extend(self._node_store[file_name])
             else:
-                document = SimpleDirectoryReader(
-                    input_files=[input_file],
-                    filename_as_id=True
-                ).load_data()
-                document = [doc for doc in document if doc.text.strip()]
-                for doc in document:
-                    doc.metadata['file_name'] = file_name
-                    doc.text = re.sub(r'\s+', ' ', doc.text.strip())
-                    doc.excluded_embed_metadata_keys = excluded_keys
-                    doc.excluded_llm_metadata_keys = excluded_keys
+                document = fitz.open(input_file)
+                all_text = ""
+                for doc_idx, page in enumerate(document):
+                    page_text = page.get_text("text")
+                    page_text = self._filter_text(page_text)
+                    all_text += " " + page_text
+                document = Document(
+                    text=all_text.strip(),
+                    metadata={
+                        "file_name": file_name,
+                    }
+                )
 
-                nodes = splitter(document, show_progress=True)
+                nodes = splitter([document], show_progress=True)
                 if embed_nodes:
                     nodes = Settings.embed_model(nodes, show_progress=True)
                 self._node_store[file_name] = nodes
