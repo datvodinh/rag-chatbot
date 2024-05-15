@@ -24,6 +24,7 @@ torch = "*"
 llama-index-callbacks-wandb = "^0.1.2"
 llama-index-retrievers-bm25 = "^0.1.3"
 pytest = "^8.2.0"
+pymupdf = "^1.24.3"
 
 
 
