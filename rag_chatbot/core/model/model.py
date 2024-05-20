@@ -19,7 +19,7 @@ class LocalRAGModel:
         setting: RAGSettings | None = None
     ):
         setting = setting or RAGSettings()
-        if model_name in ["gpt-3.5-turbo", "gpt-4"]:
+        if model_name in ["gpt-3.5-turbo", "gpt-4", "gpt-4o", "gpt-4-turbo"]:
             return OpenAI(
                 model=model_name,
                 temperature=setting.ollama.temperature

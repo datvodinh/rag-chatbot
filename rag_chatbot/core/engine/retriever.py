@@ -170,9 +170,10 @@ class LocalRetriever:
 
     def get_retrievers(
         self,
-        llm: LLM,
-        language: str,
         nodes: List[BaseNode],
+        llm: LLM | None = None,
+        language: str = "eng",
+
     ):
         vector_index = VectorStoreIndex(nodes=nodes)
         if len(nodes) > self._setting.retriever.top_k_rerank:
