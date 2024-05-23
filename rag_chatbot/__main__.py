@@ -1,9 +1,12 @@
 import argparse
 import llama_index
+from dotenv import load_dotenv
 from .ui import LocalChatbotUI
 from .pipeline import LocalRAGPipeline
 from .logger import Logger
 from .ollama import run_ollama_server, is_port_open
+
+load_dotenv()
 
 # CONSTANTS
 LOG_FILE = "logging.log"
@@ -13,7 +16,7 @@ AVATAR_IMAGES = ["./assets/user.png", "./assets/bot.png"]
 # PARSER
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--host", type=str, default="host.docker.internal",
+    "--host", type=str, default="localhost",
     help="Set host to local or in docker container"
 )
 parser.add_argument(
@@ -46,7 +49,7 @@ ui = LocalChatbotUI(
     avatar_images=AVATAR_IMAGES
 )
 
-ui.build().queue().launch(
+ui.build().launch(
     share=args.share,
     server_name="0.0.0.0",
     debug=False,
