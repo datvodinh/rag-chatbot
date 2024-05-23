@@ -37,7 +37,7 @@ class OllamaSettings(BaseModel):
         default=0.1, description="Temperature"
     )
     chat_token_limit: int = Field(
-        default=3000, description="Chat memory limit"
+        default=4000, description="Chat memory limit"
     )
 
 

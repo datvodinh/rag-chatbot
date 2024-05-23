@@ -93,15 +93,15 @@ class RAGPipelineEvaluator:
 
     async def eval_retriever(self):
         result = {}
-        result["base"] = await self._retriever_evaluator["base"].aevaluate_dataset(
+        result["base"] = self.display_results("base", await self._retriever_evaluator["base"].aevaluate_dataset(
             self._dataset, show_progress=True
-        )
-        result["bm25"] = await self._retriever_evaluator["bm25"].aevaluate_dataset(
+        ))
+        result["bm25"] = self.display_results("bm25", await self._retriever_evaluator["bm25"].aevaluate_dataset(
             self._dataset, show_progress=True
-        )
-        result["router"] = await self._retriever_evaluator["router"].aevaluate_dataset(
+        ))
+        result["router"] = self.display_results("router", await self._retriever_evaluator["router"].aevaluate_dataset(
             self._dataset, show_progress=True
-        )
+        ))
 
         return result
 
