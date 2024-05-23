@@ -8,6 +8,7 @@ from llama_index.core import VectorStoreIndex, Settings
 from llama_index.core.query_engine import RetrieverQueryEngine
 from llama_index.core.retrievers import VectorIndexRetriever
 from llama_index.retrievers.bm25 import BM25Retriever
+from llama_index.core.postprocessor import SentenceTransformerRerank
 from llama_index.core.evaluation import (
     RetrieverEvaluator,
     CorrectnessEvaluator,
@@ -18,7 +19,6 @@ from llama_index.core.evaluation import EmbeddingQAFinetuneDataset
 from llama_index.core.storage.docstore import DocumentStore
 from ..core.engine import LocalChatEngine, LocalRetriever
 from ..core.model import LocalRAGModel
-from ..core.embedding import LocalEmbedding
 from ..setting import RAGSettings
 from ..ollama import is_port_open, run_ollama_server
 
@@ -35,7 +35,6 @@ class RAGPipelineEvaluator:
         docstore_path: str = "val_dataset/docstore.json",
     ) -> None:
         self._setting = RAGSettings()
-        top_k = self._setting.retriever.top_k_rerank
         self._llm = LocalRAGModel.set(model_name=llm, host=host)
         self._teacher = LocalRAGModel.set(model_name=teacher, host=host)
         self._engine = LocalChatEngine(host=host)
@@ -50,10 +49,16 @@ class RAGPipelineEvaluator:
 
         self._retriever = {
             "base": VectorIndexRetriever(
-                index=index, similarity_top_k=top_k, verbose=True
+                index=index, similarity_top_k=self._setting.retriever.top_k_rerank, verbose=True
             ),
             "bm25": BM25Retriever.from_defaults(
-                index=index, similarity_top_k=top_k, verbose=True
+                index=index, similarity_top_k=self._setting.retriever.top_k_rerank, verbose=True
+            ),
+            "base_rerank": VectorIndexRetriever(
+                index=index, similarity_top_k=self._setting.retriever.similarity_top_k, verbose=True
+            ),
+            "bm25_rerank": BM25Retriever.from_defaults(
+                index=index, similarity_top_k=self._setting.retriever.similarity_top_k, verbose=True
             ),
             "router": LocalRetriever(host=host).get_retrievers(
                 llm=self._llm, nodes=nodes
@@ -82,6 +87,24 @@ class RAGPipelineEvaluator:
             "bm25": RetrieverEvaluator.from_metric_names(
                 ["mrr", "hit_rate"], retriever=self._retriever["bm25"]
             ),
+            "base_rerank": RetrieverEvaluator.from_metric_names(
+                ["mrr", "hit_rate"], retriever=self._retriever["base_rerank"],
+                node_postprocessors=[
+                    SentenceTransformerRerank(
+                        top_n=self._setting.retriever.top_k_rerank,
+                        model=self._setting.retriever.rerank_llm,
+                    )
+                ],
+            ),
+            "bm25_rerank": RetrieverEvaluator.from_metric_names(
+                ["mrr", "hit_rate"], retriever=self._retriever["bm25_rerank"],
+                node_postprocessors=[
+                    SentenceTransformerRerank(
+                        top_n=self._setting.retriever.top_k_rerank,
+                        model=self._setting.retriever.rerank_llm,
+                    )
+                ],
+            ),
             "router": RetrieverEvaluator.from_metric_names(
                 ["mrr", "hit_rate"], retriever=self._retriever["router"]
             ),
@@ -93,16 +116,13 @@ class RAGPipelineEvaluator:
 
     async def eval_retriever(self):
         result = {}
-        result["base"] = self.display_results("base", await self._retriever_evaluator["base"].aevaluate_dataset(
-            self._dataset, show_progress=True
-        ))
-        result["bm25"] = self.display_results("bm25", await self._retriever_evaluator["bm25"].aevaluate_dataset(
-            self._dataset, show_progress=True
-        ))
-        result["router"] = self.display_results("router", await self._retriever_evaluator["router"].aevaluate_dataset(
-            self._dataset, show_progress=True
-        ))
-
+        for retriever_name in self._retriever_evaluator.keys():
+            print(f"Running {retriever_name} retriever")
+            result[retriever_name] = self.display_results(
+                await self._retriever_evaluator[retriever_name].aevaluate_dataset(
+                    self._dataset, show_progress=True
+                )
+            )
         return result
 
     def display_results(self, name, eval_results):
