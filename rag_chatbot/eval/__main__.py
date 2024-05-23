@@ -119,6 +119,7 @@ class RAGPipelineEvaluator:
         for retriever_name in self._retriever_evaluator.keys():
             print(f"Running {retriever_name} retriever")
             result[retriever_name] = self.display_results(
+                retriever_name,
                 await self._retriever_evaluator[retriever_name].aevaluate_dataset(
                     self._dataset, show_progress=True
                 )
