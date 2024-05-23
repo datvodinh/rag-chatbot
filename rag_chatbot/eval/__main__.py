@@ -40,7 +40,7 @@ class RAGPipelineEvaluator:
         self._teacher = LocalRAGModel.set(model_name=teacher, host=host)
         self._engine = LocalChatEngine(host=host)
         Settings.llm = self._llm
-        Settings.embed_model = LocalEmbedding.set()
+        # Settings.embed_model = LocalEmbedding.set()
 
         # dataset
         docstore = DocumentStore.from_persist_path(docstore_path)
@@ -93,11 +93,15 @@ class RAGPipelineEvaluator:
 
     async def eval_retriever(self):
         result = {}
-        for name, retriever in self._retriever.items():
-            print(f"Running {name} retriever")
-            result[name] = await self._retriever_evaluator[name].aevaluate_dataset(
-                self._dataset, show_progress=True
-            )
+        result["base"] = await self._retriever_evaluator["base"].aevaluate_dataset(
+            self._dataset, show_progress=True
+        )
+        result["bm25"] = await self._retriever_evaluator["bm25"].aevaluate_dataset(
+            self._dataset, show_progress=True
+        )
+        result["router"] = await self._retriever_evaluator["router"].aevaluate_dataset(
+            self._dataset, show_progress=True
+        )
 
         return result
 
@@ -157,16 +161,19 @@ if __name__ == "__main__":
         if not is_port_open(port_number):
             run_ollama_server()
 
-    evaluator = RAGPipelineEvaluator(
-        llm=args.llm,
-        teacher=args.teacher,
-        host=args.host,
-        dataset_path=args.dataset,
-        docstore_path=args.docstore,
-    )
+    async def main():
+        evaluator = RAGPipelineEvaluator(
+            llm=args.llm,
+            teacher=args.teacher,
+            host=args.host,
+            dataset_path=args.dataset,
+            docstore_path=args.docstore,
+        )
 
-    retriever_result = asyncio.run(evaluator.eval_retriever())
-    print(retriever_result)
-    # save results
-    with open("retriever_result.json", "w") as f:
-        json.dump(retriever_result, f)
+        retriever_result = await evaluator.eval_retriever()
+        print(retriever_result)
+        # save results
+        with open("retriever_result.json", "w") as f:
+            json.dump(retriever_result, f)
+
+    asyncio.run(main())
