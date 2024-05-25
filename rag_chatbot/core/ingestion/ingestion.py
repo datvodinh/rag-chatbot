@@ -19,7 +19,7 @@ class LocalDataIngestion:
 
     def _filter_text(self, text):
         # Define the regex pattern.
-        pattern = r'[a-zA-Z0-9 `~!@#$%^&*()_\-+=\[\]{}|\\;:\'",.<>/?]+'
+        pattern = r'[a-zA-Z0-9 \u00C0-\u01B0\u1EA0-\u1EF9`~!@#$%^&*()_\-+=\[\]{}|\\;:\'",.<>/?]+'
         matches = re.findall(pattern, text)
         # Join all matched substrings into a single string
         filtered_text = ' '.join(matches)
