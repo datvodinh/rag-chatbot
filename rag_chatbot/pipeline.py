@@ -4,7 +4,7 @@ from .core import (
     LocalRAGModel,
     LocalEmbedding,
     LocalVectorStore,
-    get_system_prompt
+    get_system_prompt,
 )
 from llama_index.core import Settings
 from llama_index.core.chat_engine.types import StreamingAgentChatResponse
@@ -40,28 +40,22 @@ class LocalRAGPipeline:
     def get_system_prompt(self):
         return self._system_prompt
 
-    def set_system_prompt(
-        self,
-        system_prompt: str | None = None
-    ):
+    def set_system_prompt(self, system_prompt: str | None = None):
         self._system_prompt = system_prompt or get_system_prompt(
-            language=self._language,
-            is_rag_prompt=self._ingestion.check_nodes_exist()
+            language=self._language, is_rag_prompt=self._ingestion.check_nodes_exist()
         )
 
     def set_model(self):
         Settings.llm = LocalRAGModel.set(
             model_name=self._model_name,
             system_prompt=self._system_prompt,
-            host=self._host
+            host=self._host,
         )
         self._default_model = Settings.llm
 
     def reset_engine(self):
         self._query_engine = self._engine.set_engine(
-            llm=self._default_model,
-            nodes=[],
-            language=self._language
+            llm=self._default_model, nodes=[], language=self._language
         )
 
     def reset_documents(self):
@@ -91,16 +85,10 @@ class LocalRAGPipeline:
     def check_exist_embed(self, model_name: str) -> bool:
         return LocalEmbedding.check_model_exist(self._host, model_name)
 
-    def store_nodes(
-        self,
-        input_files: list[str] = None
-    ) -> None:
+    def store_nodes(self, input_files: list[str] = None) -> None:
         self._ingestion.store_nodes(input_files=input_files)
 
-    def set_chat_mode(
-        self,
-        system_prompt: str | None = None
-    ):
+    def set_chat_mode(self, system_prompt: str | None = None):
         self.set_language(self._language)
         self.set_system_prompt(system_prompt)
         self.set_model()
@@ -110,7 +98,7 @@ class LocalRAGPipeline:
         self._query_engine = self._engine.set_engine(
             llm=self._default_model,
             nodes=self._ingestion.get_ingested_nodes(),
-            language=self._language
+            language=self._language,
         )
 
     def get_history(self, chatbot: list[list[str]]):
@@ -122,10 +110,7 @@ class LocalRAGPipeline:
         return history
 
     def query(
-        self,
-        mode: str,
-        message: str,
-        chatbot: list[list[str]]
+        self, mode: str, message: str, chatbot: list[list[str]]
     ) -> StreamingAgentChatResponse:
         if mode == "chat":
             history = self.get_history(chatbot)
