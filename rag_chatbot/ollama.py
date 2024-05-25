@@ -1,6 +1,5 @@
 import asyncio
 import threading
-import os
 import socket
 
 
