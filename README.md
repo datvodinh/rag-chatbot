@@ -117,12 +117,11 @@ source ./scripts/run.sh --ngrok
 
 ## 🎯 Todo
 
-- [ ] Add evaluation.
-- [ ] Support better Embedding Model for Vietnamese and other languages.
-- [ ] Knowledge Graph (for Structure Data).
+- [x] Add evaluation.
 - [x] Better Document Processing.
-- [ ] MLX model.
-
+- [ ] Support better Embedding Model for Vietnamese and other languages.
+- [ ] ReAct Agent.
+- [ ] Document mangement (Qrdant, MongoDB,...)
 
 ## 🌟 Star History
 
