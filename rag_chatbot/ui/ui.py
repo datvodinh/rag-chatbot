@@ -89,6 +89,8 @@ class LocalChatbotUI:
         self._logger = logger
         self._host = host
         self._data_dir = os.path.join(os.getcwd(), data_dir)
+        if not os.path.exists(self._data_dir):
+            os.makedirs(self._data_dir, exist_ok = True)
         self._avatar_images = [
             os.path.join(os.getcwd(), image) for image in avatar_images
         ]
