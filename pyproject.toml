@@ -24,6 +24,7 @@ pymupdf = "^1.24.3"
 tqdm = "^4.66.4"
 requests = "^2.32.3"
 pandas = "^2.2.3"
+sentence-transformers = "^3.2.0"
 
 
 
@@ -31,6 +32,10 @@ pandas = "^2.2.3"
 ruff = "^0.6.9"
 deptry = "^0.20.0"
 pytest = "^8.3.3"
+
+[tool.deptry.per_rule_ignores]
+DEP002 = ["sentence-transformers"]
+
 
 [build-system]
 requires = ["poetry-core"]
