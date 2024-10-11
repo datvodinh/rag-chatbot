@@ -26,7 +26,7 @@ jobs:
       - name: Build Chatbot
         uses: ./.github/actions/package-container
         with:
-          FOLDER_PATH: ./app
+          FOLDER_PATH: .
           IMAGE_NAME: chatbot
           TOKEN: ${{ secrets.GITHUB_TOKEN }}
           USERNAME: ${{ github.actor }}

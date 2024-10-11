@@ -14,7 +14,7 @@ concurrency:
 jobs:
   lint:
     name: Ruff Lint
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install Python
@@ -31,7 +31,7 @@ jobs:
 
   build:
     name: Build Package
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version: ["3.11"]
@@ -46,7 +46,7 @@ jobs:
           context-directory: ./app/
 
   test:
-    runs-on: self-hosted
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - name: Install Python
@@ -60,5 +60,4 @@ jobs:
       # Update output format to enable automatic inline annotations.
       - name: Run Pytest
         run: |
-          cd app
           poetry run pytest

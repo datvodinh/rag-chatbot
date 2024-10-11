@@ -2,7 +2,7 @@ import random
 import re
 import os
 import uuid
-from typing import Dict, List, Tuple
+from typing import List
 from tqdm import tqdm
 from llama_index.core.llms.utils import LLM
 from llama_index.core.schema import MetadataMode, TextNode
