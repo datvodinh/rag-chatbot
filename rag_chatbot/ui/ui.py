@@ -90,7 +90,7 @@ class LocalChatbotUI:
         self._host = host
         self._data_dir = os.path.join(os.getcwd(), data_dir)
         if not os.path.exists(self._data_dir):
-            os.makedirs(self._data_dir, exist_ok = True)
+            os.makedirs(self._data_dir, exist_ok=True)
         self._avatar_images = [
             os.path.join(os.getcwd(), image) for image in avatar_images
         ]
@@ -287,13 +287,7 @@ class LocalChatbotUI:
                             model = gr.Dropdown(
                                 label="Choose Model:",
                                 choices=[
-                                    "llama3-chatqa:8b-v1.5-q8_0",
-                                    "llama3-chatqa:8b-v1.5-q6_K",
-                                    "llama3:8b-instruct-q8_0",
-                                    "starling-lm:7b-beta-q8_0",
-                                    "mixtral:instruct",
-                                    "nous-hermes2:10.7b-solar-q4_K_M",
-                                    "codeqwen:7b-chat-v1.5-q5_1",
+                                    "llama3.1:8b-instruct-q8_0",
                                 ],
                                 value=None,
                                 interactive=True,
@@ -389,7 +383,7 @@ class LocalChatbotUI:
                         outputs=[log],
                         every=1,
                         show_progress="hidden",
-                        scroll_to_output=True,
+                        # scroll_to_output=True,
                     )
 
             clear_btn.click(self._clear_chat, outputs=[message, chatbot, status])

@@ -1,0 +1,33 @@
+name: "Build"
+
+on:
+  push:
+    branches:
+      - "main"
+  workflow_dispatch:
+
+concurrency:
+  group: "${{ github.workflow }} @ ${{ github.event.pull_request.head.label || github.head_ref || github.ref }} - CI"
+  cancel-in-progress: true
+
+jobs:     
+  docker-build:
+    name: Chatbot Image
+    environment: dev
+    runs-on: ubuntu-latest
+    permissions:
+      packages: write
+      contents: write
+    if: github.event.pull_request.draft == false
+    steps:
+      - name: Checkout Actions Repository
+        uses: actions/checkout@v4
+
+      - name: Build Chatbot
+        uses: ./.github/actions/package-container
+        with:
+          FOLDER_PATH: ./app
+          IMAGE_NAME: chatbot
+          TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          USERNAME: ${{ github.actor }}
+          ORGANIZATION_NAME: datvodinh

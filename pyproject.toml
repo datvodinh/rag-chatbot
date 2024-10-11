@@ -7,7 +7,7 @@ readme = "README.md"
 
 [tool.poetry.dependencies]
 python = "^3.10"
-gradio = "^4.21.0"
+gradio = "<5.0"
 einops = "^0.7.0"
 python-dotenv = "^1.0.1"
 sentence-transformers = "^2.5.1"
