@@ -16,7 +16,7 @@ jobs:
     name: Ruff Lint
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v4
+      - uses: actions/checkout@v5
       - name: Install Python
         uses: actions/setup-python@v5
         with:
@@ -38,7 +38,7 @@ jobs:
       fail-fast: false
     steps:
       - name: Check out
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Build Chatbot
         uses: ./.github/actions/build-python
