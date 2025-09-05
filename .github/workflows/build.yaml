@@ -21,7 +21,7 @@ jobs:
     if: github.event.pull_request.draft == false
     steps:
       - name: Checkout Actions Repository
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
 
       - name: Build Chatbot
         uses: ./.github/actions/package-container
