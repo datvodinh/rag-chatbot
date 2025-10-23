@@ -16,13 +16,12 @@ AVATAR_IMAGES = ["./assets/user.png", "./assets/bot.png"]
 # PARSER
 parser = argparse.ArgumentParser()
 parser.add_argument(
-    "--host", type=str, default="localhost",
-    help="Set host to local or in docker container"
+    "--host",
+    type=str,
+    default="localhost",
+    help="Set host to local or in docker container",
 )
-parser.add_argument(
-    "--share", action='store_true',
-    help="Share gradio app"
-)
+parser.add_argument("--share", action="store_true", help="Share gradio app")
 args = parser.parse_args()
 
 # OLLAMA SERVER
@@ -46,12 +45,7 @@ ui = LocalChatbotUI(
     logger=logger,
     host=args.host,
     data_dir=DATA_DIR,
-    avatar_images=AVATAR_IMAGES
+    avatar_images=AVATAR_IMAGES,
 )
 
-ui.build().launch(
-    share=args.share,
-    server_name="0.0.0.0",
-    debug=False,
-    show_api=False
-)
+ui.build().launch(share=args.share, server_name="0.0.0.0", debug=False, show_api=False)

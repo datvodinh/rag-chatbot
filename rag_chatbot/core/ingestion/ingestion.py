@@ -22,9 +22,9 @@ class LocalDataIngestion:
         pattern = r'[a-zA-Z0-9 \u00C0-\u01B0\u1EA0-\u1EF9`~!@#$%^&*()_\-+=\[\]{}|\\;:\'",.<>/?]+'
         matches = re.findall(pattern, text)
         # Join all matched substrings into a single string
-        filtered_text = ' '.join(matches)
+        filtered_text = " ".join(matches)
         # Normalize the text by removing extra whitespaces
-        normalized_text = re.sub(r'\s+', ' ', filtered_text.strip())
+        normalized_text = re.sub(r"\s+", " ", filtered_text.strip())
 
         return normalized_text
 
@@ -32,7 +32,7 @@ class LocalDataIngestion:
         self,
         input_files: list[str],
         embed_nodes: bool = True,
-        embed_model: Any | None = None
+        embed_model: Any | None = None,
     ) -> List[BaseNode]:
         return_nodes = []
         self._ingested_file = []
@@ -42,12 +42,12 @@ class LocalDataIngestion:
             chunk_size=self._setting.ingestion.chunk_size,
             chunk_overlap=self._setting.ingestion.chunk_overlap,
             paragraph_separator=self._setting.ingestion.paragraph_sep,
-            secondary_chunking_regex=self._setting.ingestion.chunking_regex
+            secondary_chunking_regex=self._setting.ingestion.chunking_regex,
         )
         if embed_nodes:
             Settings.embed_model = embed_model or Settings.embed_model
         for input_file in tqdm(input_files, desc="Ingesting data"):
-            file_name = input_file.strip().split('/')[-1]
+            file_name = input_file.strip().split("/")[-1]
             self._ingested_file.append(file_name)
             if file_name in self._node_store:
                 return_nodes.extend(self._node_store[file_name])
@@ -62,7 +62,7 @@ class LocalDataIngestion:
                     text=all_text.strip(),
                     metadata={
                         "file_name": file_name,
-                    }
+                    },
                 )
 
                 nodes = splitter([document], show_progress=True)

@@ -1,5 +1,5 @@
-
-#!/bin/bash
+#!/usr/bin/env bash
+set -euo pipefail
 
 # Define the usage function
 usage() {
@@ -23,9 +23,15 @@ while [[ $# -gt 0 ]]; do
     esac
 done
 
+# Ensure uv is available
+if ! command -v uv >/dev/null 2>&1; then
+    echo "uv is required. Install it first with: curl -LsSf https://astral.sh/uv/install.sh | sh"
+    exit 1
+fi
+
 # Run the Python app
 if [[ -n $NGROK ]]; then
-    python -m rag_chatbot --host localhost & ngrok http 7860
+    uv run python -m rag_chatbot --host localhost & ngrok http 7860
 else
-    python -m rag_chatbot --host localhost
+    uv run python -m rag_chatbot --host localhost
 fi

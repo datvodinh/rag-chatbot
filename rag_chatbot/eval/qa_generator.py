@@ -55,8 +55,7 @@ def generate_question_context_pairs(
 
         result = str(response).strip().split("\n")
         questions = [
-            re.sub(r"^\d+[\).\s]", "", question).strip()
-            for question in result
+            re.sub(r"^\d+[\).\s]", "", question).strip() for question in result
         ]
         questions = [question for question in questions if len(question) > 0]
 
@@ -96,7 +95,6 @@ class QAGenerator:
 
         if os.path.exists(os.path.join(output_dir, "docstore.json")):
             print("Docstore already exist! Skip ingestion.")
-            
 
         nodes = self._ingestion.store_nodes(input_files, embed_nodes=True)
         random.shuffle(nodes)

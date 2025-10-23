@@ -9,9 +9,7 @@ from ...setting import RAGSettings
 
 class LocalChatEngine:
     def __init__(
-        self,
-        setting: RAGSettings | None = None,
-        host: str = "host.docker.internal"
+        self, setting: RAGSettings | None = None, host: str = "host.docker.internal"
     ):
         super().__init__()
         self._setting = setting or RAGSettings()
@@ -24,26 +22,21 @@ class LocalChatEngine:
         nodes: List[BaseNode],
         language: str = "eng",
     ) -> CondensePlusContextChatEngine | SimpleChatEngine:
-
         # Normal chat engine
         if len(nodes) == 0:
             return SimpleChatEngine.from_defaults(
                 llm=llm,
                 memory=ChatMemoryBuffer(
                     token_limit=self._setting.ollama.chat_token_limit
-                )
+                ),
             )
 
         # Chat engine with documents
         retriever = self._retriever.get_retrievers(
-            llm=llm,
-            language=language,
-            nodes=nodes
+            llm=llm, language=language, nodes=nodes
         )
         return CondensePlusContextChatEngine.from_defaults(
             retriever=retriever,
             llm=llm,
-            memory=ChatMemoryBuffer(
-                token_limit=self._setting.ollama.chat_token_limit
-            )
+            memory=ChatMemoryBuffer(token_limit=self._setting.ollama.chat_token_limit),
         )

@@ -4,7 +4,7 @@ from llama_index.core.retrievers import (
     BaseRetriever,
     QueryFusionRetriever,
     VectorIndexRetriever,
-    RouterRetriever
+    RouterRetriever,
 )
 from llama_index.core.callbacks.base import CallbackManager
 from llama_index.core.retrievers.fusion_retriever import FUSION_MODES
@@ -36,11 +36,21 @@ class TwoStageRetriever(QueryFusionRetriever):
         callback_manager: CallbackManager | None = None,
         objects: List[IndexNode] | None = None,
         object_map: dict | None = None,
-        retriever_weights: List[float] | None = None
+        retriever_weights: List[float] | None = None,
     ) -> None:
         super().__init__(
-            retrievers, llm, query_gen_prompt, mode, similarity_top_k, num_queries,
-            use_async, verbose, callback_manager, objects, object_map, retriever_weights
+            retrievers,
+            llm,
+            query_gen_prompt,
+            mode,
+            similarity_top_k,
+            num_queries,
+            use_async,
+            verbose,
+            callback_manager,
+            objects,
+            object_map,
+            retriever_weights,
         )
         self._setting = setting or RAGSettings()
         self._rerank_model = SentenceTransformerRerank(
@@ -72,9 +82,7 @@ class TwoStageRetriever(QueryFusionRetriever):
 
 class LocalRetriever:
     def __init__(
-        self,
-        setting: RAGSettings | None = None,
-        host: str = "host.docker.internal"
+        self, setting: RAGSettings | None = None, host: str = "host.docker.internal"
     ):
         super().__init__()
         self._setting = setting or RAGSettings()
@@ -91,7 +99,7 @@ class LocalRetriever:
             index=vector_index,
             similarity_top_k=self._setting.retriever.similarity_top_k,
             embed_model=Settings.embed_model,
-            verbose=True
+            verbose=True,
         )
 
     def _get_hybrid_retriever(
@@ -99,20 +107,20 @@ class LocalRetriever:
         vector_index: VectorStoreIndex,
         llm: LLM | None = None,
         language: str = "eng",
-        gen_query: bool = True
+        gen_query: bool = True,
     ):
         # VECTOR INDEX RETRIEVER
         vector_retriever = VectorIndexRetriever(
             index=vector_index,
             similarity_top_k=self._setting.retriever.similarity_top_k,
             embed_model=Settings.embed_model,
-            verbose=True
+            verbose=True,
         )
 
         bm25_retriever = BM25Retriever.from_defaults(
             index=vector_index,
             similarity_top_k=self._setting.retriever.similarity_top_k,
-            verbose=True
+            verbose=True,
         )
 
         # FUSION RETRIEVER
@@ -125,7 +133,7 @@ class LocalRetriever:
                 similarity_top_k=self._setting.retriever.top_k_rerank,
                 num_queries=self._setting.retriever.num_queries,
                 mode=self._setting.retriever.fusion_mode,
-                verbose=True
+                verbose=True,
             )
         else:
             hybrid_retriever = TwoStageRetriever(
@@ -136,7 +144,7 @@ class LocalRetriever:
                 similarity_top_k=self._setting.retriever.similarity_top_k,
                 num_queries=1,
                 mode=self._setting.retriever.fusion_mode,
-                verbose=True
+                verbose=True,
             )
 
         return hybrid_retriever
@@ -152,20 +160,20 @@ class LocalRetriever:
                 vector_index, llm, language, gen_query=True
             ),
             description="Use this tool when the user's query is ambiguous or unclear.",
-            name="Fusion Retriever with BM25 and Vector Retriever and LLM Query Generation."
+            name="Fusion Retriever with BM25 and Vector Retriever and LLM Query Generation.",
         )
         two_stage_tool = RetrieverTool.from_defaults(
             retriever=self._get_hybrid_retriever(
                 vector_index, llm, language, gen_query=False
             ),
             description="Use this tool when the user's query is clear and unambiguous.",
-            name="Two Stage Retriever with BM25 and Vector Retriever and LLM Rerank."
+            name="Two Stage Retriever with BM25 and Vector Retriever and LLM Rerank.",
         )
 
         return RouterRetriever.from_defaults(
             selector=LLMSingleSelector.from_defaults(llm=llm),
             retriever_tools=[fusion_tool, two_stage_tool],
-            llm=llm
+            llm=llm,
         )
 
     def get_retrievers(
@@ -173,7 +181,6 @@ class LocalRetriever:
         nodes: List[BaseNode],
         llm: LLM | None = None,
         language: str = "eng",
-
     ):
         vector_index = VectorStoreIndex(nodes=nodes)
         if len(nodes) > self._setting.retriever.top_k_rerank:
