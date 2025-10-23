@@ -11,5 +11,5 @@ __all__ = [
     "LocalDataIngestion",
     "LocalVectorStore",
     "LocalChatEngine",
-    "get_system_prompt"
+    "get_system_prompt",
 ]

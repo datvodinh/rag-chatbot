@@ -5,7 +5,6 @@ import re
 
 class Logger:
     def __init__(self, filename):
-
         self.filename = os.path.join(os.getcwd(), filename)
         self.terminal = sys.stdout
         self.reset_logs()
@@ -24,7 +23,7 @@ class Logger:
         return False
 
     def reset_logs(self):
-        with open(self.filename, 'w') as file:
+        with open(self.filename, "w") as file:
             file.truncate(0)
 
     def read_logs(self):
@@ -35,14 +34,17 @@ class Logger:
             log_content = f.readlines()
 
         # Filter out lines containing null characters
-        log_content = [line for line in log_content if '\x00' not in line]
+        log_content = [line for line in log_content if "\x00" not in line]
 
         # Define the regex pattern for the progress bar
-        progress_pattern = re.compile(r'\[.*\] \d+\.\d+%')
+        progress_pattern = re.compile(r"\[.*\] \d+\.\d+%")
 
         # Find lines matching the progress bar pattern
-        progress_lines = [line for line in log_content if
-                          progress_pattern.search(line) and " - Completed!\n" not in line]
+        progress_lines = [
+            line
+            for line in log_content
+            if progress_pattern.search(line) and " - Completed!\n" not in line
+        ]
 
         # If there are multiple progress bars, keep only the last one in recent_lines
         if progress_lines:
@@ -56,4 +58,4 @@ class Logger:
         recent_lines = valid_content[-300:]
 
         # Return the joined recent lines
-        return ''.join(recent_lines)
+        return "".join(recent_lines)
